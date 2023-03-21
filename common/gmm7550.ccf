@@ -1,0 +1,11 @@
+## GMM-7550 pins
+
+# Master clock input (100 MHz)
+Pin_in  "ser_clk"       Loc = "SER_CLK";
+
+### SPI
+
+#   D0 IO_WA_B7  master - OUT  slave -  IN (MOSI), GPIO pin 19
+#   D1 IO_WA_A7  master -  IN  slave - OUT (MISO), GPIO pin 21
+#  /CS IO_WA_A8                                  , GPIO pin 24
+#  CLK IO_WA_B8                                  , GPIO pin 23

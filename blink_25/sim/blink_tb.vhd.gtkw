@@ -1,0 +1,30 @@
+[*]
+[*] GTKWave Analyzer v3.3.113 (w)1999-2022 BSI
+[*] Mon Jan 23 12:01:44 2023
+[*]
+[dumpfile] "/home/ak/Work/ccgm/blink/sim/tb_blink.ghw"
+[dumpfile_mtime] "Mon Jan 23 12:01:13 2023"
+[dumpfile_size] 2363
+[savefile] "/home/ak/Work/ccgm/blink/sim/tb_blink.gtkw"
+[timestart] 0
+[size] 1280 641
+[pos] -27 -24
+*-26.444494 10000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.tb_blink.
+[treeopen] top.tb_blink.i_dut.
+[sst_width] 273
+[signals_width] 103
+[sst_expanded] 1
+[sst_vpaned_height] 171
+@28
+top.tb_blink.i_dut.rst_n
+top.tb_blink.clk
+@200
+-
+@28
+top.tb_blink.led
+@23
+#{top.tb_blink.i_dut.cnt[4:0]} top.tb_blink.i_dut.cnt[3] top.tb_blink.i_dut.cnt[2] top.tb_blink.i_dut.cnt[1] top.tb_blink.i_dut.cnt[0]
+[pattern_trace] 1
+[pattern_trace] 0
