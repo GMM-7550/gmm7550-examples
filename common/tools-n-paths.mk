@@ -8,6 +8,9 @@ CP    := cp --archive --update --force --backup=never
 RM    := rm -f
 MKDIR := mkdir -p
 GREP  := grep
+DATE  := date
+GIT   := git
+TAR   := tar
 
 SYNTHDIR := synthesis
 IMPLDIR  := pnr
