@@ -1,6 +1,7 @@
 ECHO  := @echo
 #ECHO  := true
 
+PWD   := pwd
 CAT   := cat
 CUT   := cut
 CP    := cp --archive --update --force --backup=never

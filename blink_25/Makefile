@@ -1,7 +1,7 @@
 include $(COMMONDIR)/tools-n-paths.mk
 
 # By default, top entity name is the same as an example directory
-TOP := $(notdir $(shell pwd))
+TOP := $(notdir $(shell $(PWD)))
 
 VHDL_SRC := $(wildcard src/*.vhd)
 
