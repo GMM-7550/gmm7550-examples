@@ -6,7 +6,7 @@
 
 EXAMPLES := blink_25 blink_25_pll blink_100_pll
 
-CLEAN_TARGETS := clean distclean
+NOLIB_TARGETS := clean distclean
 TARGETS := synth impl pgm configs
 
 VHDL_STANDARD := 08
@@ -14,7 +14,7 @@ CC_LIB_NAME   := cc
 export VHDL_STANDARD
 export CC_LIB_NAME
 
-.PHONY: all $(TARGETS) $(CLEAN_TARGETS) $(EXAMPLES)
+.PHONY: all $(TARGETS) $(NOLIB_TARGETS) $(EXAMPLES)
 .PHONY: libs $(CC_LIB_NAME)
 
 SUBDIRS := $(filter     $(EXAMPLES),$(MAKECMDGOALS))
@@ -25,10 +25,10 @@ ifneq (,$(SUBDIRS))
 EXAMPLES := $(SUBDIRS)
 endif
 
-all: $(EXAMPLES)
+all: libs $(EXAMPLES)
 
 # if target is not a clean-up one, libraries are required to build examples
-ifeq (,$(filter $(CLEAN_TARGETS),$(GOALS)))
+ifneq (,$(filter-out $(NOLIB_TARGETS),$(GOALS)))
 $(EXAMPLES): libs
 endif
 
