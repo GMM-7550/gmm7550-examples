@@ -21,8 +21,8 @@ $(EXPORTDIR):
 	$(MKDIR) $@
 
 $(TARBALL): $(EXPORTDIR)/$(EXP_NAME) | $(EXPORTDIR)
-#	(cd $(EXPORTDIR) && $(TAR) --xz --create --file $@ $(EXP_NAME))
-#	(cd $(EXPORTDIR) && $(RM) -r $(EXP_NAME))
+	(cd $(EXPORTDIR) && $(TAR) --xz --create --file $@ $(EXP_NAME))
+	(cd $(EXPORTDIR) && $(RM) -r $(EXP_NAME))
 	@echo "##### Standalone example code is exported to"
 	@echo "##### " $(EXPORTDIR)/$(TARBALL)
 
