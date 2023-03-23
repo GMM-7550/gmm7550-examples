@@ -186,6 +186,37 @@ package gatemate is
   -----------------------------------------------------------------------------
   -- Registers/Latches
   -----------------------------------------------------------------------------
+  component CC_DFF is
+    generic (
+      CLK_INV : integer := 0; -- clock polarity, 0: rising edge, 1: falling edge
+      EN_INV  : integer := 0; -- enable signal inversion, 0: disable, 1: enable
+      SR_INV  : integer := 0; -- set/reset signal inversion
+      SR_VAL  : integer := 0; -- 0: reset to zero, 1: set to one
+      INIT    : integer := X  -- initial value of Q output after configuration
+      );
+    port (
+      D   : in  std_logic; -- data input
+      CLK : in  std_logic; -- clock signal
+      EN  : in  std_logic; -- clock enable signal
+      SR  : in  std_logic; -- configurable asynchronous  set/reset signal
+      Q   : out std_logic  -- data output
+      );
+  end component CC_DFF;
+
+  component CC_DLT is
+    generic (
+      G_INV   : integer := 0; -- enable signal inverting
+      SR_INV  : integer := 0; -- set/reset signal inversion
+      SR_VAL  : integer := 0; -- 0: reset to zero, 1: set to one
+      INIT    : integer := X  -- initial value of Q output after configuration
+      );
+    port (
+      D  : in  std_logic; -- data input
+      G  : in  std_logic: -- enable input
+      SR : in  std_logic; -- configurable asynchronous set/reset signal
+      Q  : out std_logic  -- data output
+      );
+  end component CC_DLT;
 
   -----------------------------------------------------------------------------
   -- LUT/MUX
