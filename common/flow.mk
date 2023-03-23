@@ -10,19 +10,17 @@ PRFLAGS += +d
 endif
 
 include $(COMMONDIR)/ghdl.mk
-GHDL_FLAGS += -P../$(CC_LIB_NAME)/$(SYNTHDIR) --vendor-library=$(CC_LIB_NAME)
-
-CC_LIB := ../$(CC_LIB_NAME)/$(SYNTHDIR)/$(CC_LIB_NAME)-obj$(VHDL_STANDARD).cf
+GHDL_FLAGS += -P$(CC_LIB_DIR)/$(SYNTHDIR) --vendor-library=$(CC_LIB_NAME)
 
 YOSYS := yosys -m ghdl
 OFL   := openFPGALoader
-
+CC_TOOLCHAIN ?= $(TOPDIR)/../cc-toolchain
 ifeq ($(shell uname -s),Linux)
 WINE :=
-PR   := $(TOPDIR)/../cc-toolchain-linux/bin/p_r/p_r
+PR   := $(CC_TOOLCHAIN)-linux/bin/p_r/p_r
 else
 WINE := WINEDEBUG=-all wine
-PR   := $(TOPDIR)/../cc-toolchain-win/bin/p_r/p_r.exe
+PR   := $(CC_TOOLCHAIN)-win/bin/p_r/p_r.exe
 endif
 
 NETLIST=$(SYNTHDIR)/$(TOP)_synth.v

@@ -6,7 +6,7 @@
 
 EXAMPLES := blink_25 blink_25_pll blink_100_pll
 
-NOLIB_TARGETS := clean distclean
+NOLIB_TARGETS := clean distclean export
 TARGETS := synth impl pgm configs
 
 VHDL_STANDARD := 08
@@ -15,7 +15,7 @@ export VHDL_STANDARD
 export CC_LIB_NAME
 
 .PHONY: all $(TARGETS) $(NOLIB_TARGETS) $(EXAMPLES)
-.PHONY: libs $(CC_LIB_NAME)
+.PHONY: libs
 
 SUBDIRS := $(filter     $(EXAMPLES),$(MAKECMDGOALS))
 GOALS   := $(filter-out $(EXAMPLES),$(MAKECMDGOALS))
@@ -25,7 +25,13 @@ ifneq (,$(SUBDIRS))
 EXAMPLES := $(SUBDIRS)
 endif
 
-all: libs $(EXAMPLES)
+all: $(EXAMPLES)
+
+# if no build target is specified on the command line (only subdirs) default
+# example build target (all) depends on the libraries
+ifeq (,$(GOALS))
+$(EXAMPLES): libs
+endif
 
 # if target is not a clean-up one, libraries are required to build examples
 ifneq (,$(filter-out $(NOLIB_TARGETS),$(GOALS)))
@@ -40,25 +46,29 @@ include $(COMMONDIR)/tools-n-paths.mk
 # Output directory for FPGA configuration files
 CFGDIR := $(TOPDIR)/configs
 
+# Output directory for exported (standalone) examples
+EXPORTDIR := $(TOPDIR)/exports
+
 export TOPDIR
 export COMMONDIR
 export CFGDIR
+export EXPORTDIR
 
+export: $(EXAMPLES)
 $(TARGETS): $(EXAMPLES)
 
 $(EXAMPLES):
 	$(MAKE) -C $@ $(GOALS)
 
 clean: $(EXAMPLES)
-	$(MAKE) -C $(CC_LIB_NAME) $@
+	$(MAKE) -C $(CC_LIB_DIR) $@
 
 distclean: $(EXAMPLES)
-	$(MAKE) -C $(CC_LIB_NAME) $@
+	$(MAKE) -C $(CC_LIB_DIR) $@
 	$(RM) -r $(CFGDIR)
-
-CC_LIB := $(CC_LIB_NAME)/$(CC_LIB_NAME)-obj$(VHDL_STANDARD).cf
+	$(RM) -r $(EXPORTDIR)
 
 libs: $(CC_LIB)
 
 $(CC_LIB):
-	$(MAKE) -C $(CC_LIB_NAME)
+	$(MAKE) -C $(CC_LIB_DIR)

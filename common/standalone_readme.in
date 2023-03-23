@@ -1,0 +1,12 @@
+# Standalone VHDL Example for GMM-7550 Module
+
+This `@NAME@` project has been exported on **@DATE@** from the `gmm7550-examples`
+version `@GIT_COMMIT@`.
+
+Build with
+```
+make synth | impl | pgm
+```
+
+**NOTE:** The project may need adjustments for the build environment and locations
+of the tools (Yosys, openFPGAloader, CologneChip place-and-route tools).
