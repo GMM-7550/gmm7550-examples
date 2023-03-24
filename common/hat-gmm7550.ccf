@@ -16,6 +16,8 @@ Pin_in  "uart_rx"       Loc = "IO_WA_B6"; # SPI D2, GPIO pin 8
 
 ### Pmod J10
 
+Pin_out   "J10_EN"      Loc = "IO_SA_A7";
+
 Pin_inout "J10_IO0"     Loc = "IO_SA_A0";
 Pin_inout "J10_IO1"     Loc = "IO_SA_A1";
 Pin_inout "J10_IO2"     Loc = "IO_SA_A2";
@@ -26,6 +28,8 @@ Pin_inout "J10_IO6"     Loc = "IO_SA_B2";
 Pin_inout "J10_IO7"     Loc = "IO_SA_B3";
 
 ### Pmod J9
+
+Pin_out   "J9_EN"       Loc = "IO_SB_B3";
 
 Pin_inout "J9_IO0"      Loc = "IO_SB_A6"; # CLK_2
 Pin_inout "J9_IO1"      Loc = "IO_SB_A7"; # CLK_1
