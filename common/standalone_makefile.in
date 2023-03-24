@@ -19,7 +19,7 @@ VHDL_STANDARD := 08
 export CC_LIB_NAME
 export VHDL_STANDARD
 
-include $(COMMONDIR)/tools-n-paths.mk
+include $(COMMONDIR)/defs.mk
 
 CC_LIB_DIR := $(TOPDIR)/$(CC_LIB_NAME)
 CC_LIB := $(CC_LIB_DIR)/$(SYNTHDIR)/$(CC_LIB_NAME)-obj$(VHDL_STANDARD).cf

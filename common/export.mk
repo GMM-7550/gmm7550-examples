@@ -34,7 +34,7 @@ $(EXPORTDIR)/$(EXP_NAME):
 	-$(CP) --recursive --dereference sim $(EXPORTDIR)/$(EXP_NAME)/
 	-$(CP) --recursive --dereference tb  $(EXPORTDIR)/$(EXP_NAME)/
 	$(MKDIR) $(EXPORTDIR)/$(EXP_NAME)/mk
-	for f in $(COMMONDIR)/{tools-n-paths.mk,ghdl.mk,flow.mk,*ccf}; do \
+	for f in $(COMMONDIR)/{defs.mk,ghdl.mk,flow.mk,*ccf}; do \
 	  $(CP) $$f $(EXPORTDIR)/$(EXP_NAME)/mk/; \
 	done
 	$(CP) $(TOPDIR)/LICENSE.txt $(EXPORTDIR)/$(EXP_NAME)/

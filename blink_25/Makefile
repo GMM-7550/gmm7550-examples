@@ -1,4 +1,4 @@
-include $(COMMONDIR)/tools-n-paths.mk
+include $(COMMONDIR)/defs.mk
 
 # By default, top entity name is the same as an example directory
 TOP := $(notdir $(shell $(PWD)))

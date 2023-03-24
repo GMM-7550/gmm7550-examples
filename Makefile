@@ -41,7 +41,7 @@ endif
 TOPDIR := $(shell pwd)
 COMMONDIR := $(TOPDIR)/common
 
-include $(COMMONDIR)/tools-n-paths.mk
+include $(COMMONDIR)/defs.mk
 
 # Output directory for FPGA configuration files
 CFGDIR := $(TOPDIR)/configs

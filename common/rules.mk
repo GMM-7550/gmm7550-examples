@@ -1,6 +1,6 @@
 all: $(TOP)
 
-include $(COMMONDIR)/tools-n-paths.mk
+include $(COMMONDIR)/defs.mk
 include $(COMMONDIR)/flow.mk
 
 .PHONY: all clean distclean configs $(TOP)

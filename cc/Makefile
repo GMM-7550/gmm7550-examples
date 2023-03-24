@@ -1,6 +1,6 @@
 VHDL_FILES := $(wildcard src/*.vhd)
 
-include $(COMMONDIR)/tools-n-paths.mk
+include $(COMMONDIR)/defs.mk
 include $(COMMONDIR)/ghdl.mk
 
 .PHONY: all clean distclean $(CC_LIB_NAME)
