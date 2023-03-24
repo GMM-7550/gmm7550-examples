@@ -148,7 +148,7 @@ package gatemate is
     port (
       A    : in    std_logic; -- input from FPGA-internal circuitry
       T    : in    std_logic; -- active Low output enable from FPGA-internal circuitry
-      Y    : out   std_logic  -- output to FPGA-internal circuitry
+      Y    : out   std_logic; -- output to FPGA-internal circuitry
       IO_P : inout std_logic; -- positive differential bidirectional signal to device pin
       IO_N : inout std_logic  -- negative differential bidirectional signal to device pin
       );
@@ -192,7 +192,7 @@ package gatemate is
       EN_INV  : integer := 0; -- enable signal inversion, 0: disable, 1: enable
       SR_INV  : integer := 0; -- set/reset signal inversion
       SR_VAL  : integer := 0; -- 0: reset to zero, 1: set to one
-      INIT    : integer := X  -- initial value of Q output after configuration
+      INIT    : integer := 0  -- initial value of Q output after configuration
       );
     port (
       D   : in  std_logic; -- data input
@@ -208,11 +208,11 @@ package gatemate is
       G_INV   : integer := 0; -- enable signal inverting
       SR_INV  : integer := 0; -- set/reset signal inversion
       SR_VAL  : integer := 0; -- 0: reset to zero, 1: set to one
-      INIT    : integer := X  -- initial value of Q output after configuration
+      INIT    : integer := 0  -- initial value of Q output after configuration
       );
     port (
       D  : in  std_logic; -- data input
-      G  : in  std_logic: -- enable input
+      G  : in  std_logic; -- enable input
       SR : in  std_logic; -- configurable asynchronous set/reset signal
       Q  : out std_logic  -- data output
       );
