@@ -242,6 +242,31 @@ package gatemate is
       );
   end component CC_LUT2;
 
+  component CC_LUT3 is
+    generic (
+      INIT : std_logic_vector(7 downto 0) := x"00"
+      );
+    port (
+      I0 : in  std_logic;
+      I1 : in  std_logic;
+      I2 : in  std_logic;
+      O  : out std_logic
+      );
+  end component CC_LUT3;
+
+  component CC_LUT4 is
+    generic (
+      INIT : std_logic_vector(15 downto 0) := x"0000"
+      );
+    port (
+      I0 : in  std_logic;
+      I1 : in  std_logic;
+      I2 : in  std_logic;
+      I3 : in  std_logic;
+      O  : out std_logic
+      );
+  end component CC_LUT4;
+
   --        +-----+
   -- I0 --->|     |
   --        | L00 |---\
