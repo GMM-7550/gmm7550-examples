@@ -242,6 +242,21 @@ package gatemate is
       );
   end component CC_LUT2;
 
+  --        +-----+
+  -- I0 --->|     |
+  --        | L00 |---\
+  -- I1 --->|     |   |    +-----+
+  --        +-----+   \--->|     |
+  --                       | L10 |---> O
+  --        +-----+   /--->|     |
+  -- I2 --->|     |   |    +-----+
+  --        | L01 |---/
+  -- I3 --->|     |
+  --        +-----+
+  --
+  -- Figure 4.1 CC_L2T4 primitive schematic
+  -- GateMate FPGA User Guide
+  -- Primitivers Library
   component CC_L2T4 is
     generic (
       INIT_L00 : std_logic_vector(3 downto 0) := x"0"; -- LUT L00 configuration
@@ -257,6 +272,23 @@ package gatemate is
       );
   end component CC_L2T4;
 
+  -- I4 -----------------------------\
+  --                                 |    +-----+
+  --        +-----+                  \--->|     |
+  -- I0 --->|     |                       | L20 |---> O
+  --        | L02 |---\              /--->|     |
+  -- I1 --->|     |   |    +-----+   |    +-----+
+  --        +-----+   \--->|     |   |
+  --                       | L11 |---/
+  --        +-----+   /--->|     |
+  -- I2 --->|     |   |    +-----+
+  --        | L03 |---/
+  -- I3 --->|     |
+  --        +-----+
+  --
+  -- Figure 4.3 CC_L2T5 primitive schematic
+  -- GateMate FPGA User Guide
+  -- Primitivers Library
   component CC_L2T5 is
     generic (
       INIT_L02 : std_logic_vector(3 downto 0) := x"0"; -- LUT L02 configuration
@@ -273,6 +305,24 @@ package gatemate is
       O  : out std_logic
       );
   end component CC_L2T5;
+
+  --        +------+
+  -- I0 --->|      |
+  -- I1 --->| L2T4 |---+---> O0
+  -- I2 --->|      |   |
+  -- I3 --->|      |   |
+  --        +------+   |
+  --   /---------------/
+  --   |    +------+
+  --   \--->|      |
+  -- I4 --->| L2T5 |-------> O1
+  -- I5 --->|      |
+  -- I6 --->|      |
+  -- I7 --->|      |
+  --        +------+
+  --
+  -- Figure 4.4: Combined CC_L2T4 and CC_L2T5
+  -- primitives forming an 8-input LUT-tree
 
   -----------------------------------------------------------------------------
   -- Arithmetic Functions
