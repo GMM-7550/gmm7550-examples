@@ -221,6 +221,27 @@ package gatemate is
   -----------------------------------------------------------------------------
   -- LUT/MUX
   -----------------------------------------------------------------------------
+  component CC_LUT1 is
+    generic (
+      INIT : std_logic_vector(1 downto 0) := "00"
+      );
+    port (
+      I0 : in  std_logic;
+      O  : out std_logic
+      );
+  end component CC_LUT1;
+
+  component CC_LUT2 is
+    generic (
+      INIT : std_logic_vector(3 downto 0) := "0000"
+      );
+    port (
+      I0 : in  std_logic;
+      I1 : in  std_logic;
+      O  : out std_logic
+      );
+  end component CC_LUT2;
+
   component CC_L2T4 is
     generic (
       INIT_L00 : std_logic_vector(3 downto 0) := x"0"; -- LUT L00 configuration
@@ -235,6 +256,23 @@ package gatemate is
       O  : out std_logic
       );
   end component CC_L2T4;
+
+  component CC_L2T5 is
+    generic (
+      INIT_L02 : std_logic_vector(3 downto 0) := x"0"; -- LUT L02 configuration
+      INIT_L03 : std_logic_vector(3 downto 0) := x"0"; -- LUT L03 configuration
+      INIT_L11 : std_logic_vector(3 downto 0) := x"0"; -- LUT L11 configuration
+      INIT_L20 : std_logic_vector(3 downto 0) := x"0"  -- LUT L20 configuration
+      );
+    port (
+      I0 : in  std_logic;
+      I1 : in  std_logic;
+      I2 : in  std_logic;
+      I3 : in  std_logic;
+      I4 : in  std_logic;
+      O  : out std_logic
+      );
+  end component CC_L2T5;
 
   -----------------------------------------------------------------------------
   -- Arithmetic Functions
