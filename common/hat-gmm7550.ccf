@@ -18,24 +18,24 @@ Pin_in  "uart_rx"       Loc = "IO_WA_B6"; # SPI D2, GPIO pin 8
 
 Pin_out   "J10_EN"      Loc = "IO_SA_A7";
 
-Pin_inout "J10_IO0"     Loc = "IO_SA_A0";
-Pin_inout "J10_IO1"     Loc = "IO_SA_A1";
-Pin_inout "J10_IO2"     Loc = "IO_SA_A2";
-Pin_inout "J10_IO3"     Loc = "IO_SA_A3";
-Pin_inout "J10_IO4"     Loc = "IO_SA_B0";
-Pin_inout "J10_IO5"     Loc = "IO_SA_B1";
-Pin_inout "J10_IO6"     Loc = "IO_SA_B2";
-Pin_inout "J10_IO7"     Loc = "IO_SA_B3";
+Pin_inout "J10_IO[0]"   Loc = "IO_SA_A0";
+Pin_inout "J10_IO[1]"   Loc = "IO_SA_A1";
+Pin_inout "J10_IO[2]"   Loc = "IO_SA_A2";
+Pin_inout "J10_IO[3]"   Loc = "IO_SA_A3";
+Pin_inout "J10_IO[4]"   Loc = "IO_SA_B0";
+Pin_inout "J10_IO[5]"   Loc = "IO_SA_B1";
+Pin_inout "J10_IO[6]"   Loc = "IO_SA_B2";
+Pin_inout "J10_IO[7]"   Loc = "IO_SA_B3";
 
 ### Pmod J9
 
 Pin_out   "J9_EN"       Loc = "IO_SB_B3";
 
-Pin_inout "J9_IO0"      Loc = "IO_SB_A6"; # CLK_2
-Pin_inout "J9_IO1"      Loc = "IO_SB_A7"; # CLK_1
-Pin_inout "J9_IO2"      Loc = "IO_SB_A8"; # CLK_0
-# Pin_inout "J9_IO3"      Loc = "IO_SB_A5"; # CLK_3
-Pin_inout "J9_IO4"      Loc = "IO_SB_B6";
-Pin_inout "J9_IO5"      Loc = "IO_SB_B7";
-Pin_inout "J9_IO6"      Loc = "IO_SB_B8";
-Pin_inout "J9_IO7"      Loc = "IO_SB_B5";
+Pin_inout "J9_IO[0]"    Loc = "IO_SB_A6"; # CLK_2
+Pin_inout "J9_IO[1]"    Loc = "IO_SB_A7"; # CLK_1
+Pin_inout "J9_IO[2]"    Loc = "IO_SB_A8"; # CLK_0
+# Pin_inout "J9_IO[3]"    Loc = "IO_SB_A5"; # CLK_3
+Pin_inout "J9_IO[4]"    Loc = "IO_SB_B6";
+Pin_inout "J9_IO[5]"    Loc = "IO_SB_B7";
+Pin_inout "J9_IO[6]"    Loc = "IO_SB_B8";
+Pin_inout "J9_IO[7]"    Loc = "IO_SB_B5";
