@@ -219,7 +219,7 @@ package gatemate is
   end component CC_DLT;
 
   -----------------------------------------------------------------------------
-  -- LUT/MUX
+  -- LUT
   -----------------------------------------------------------------------------
   component CC_LUT1 is
     generic (
@@ -350,8 +350,59 @@ package gatemate is
   -- primitives forming an 8-input LUT-tree
 
   -----------------------------------------------------------------------------
+  -- Multiplexers
+  -----------------------------------------------------------------------------
+  component CC_MX2 is
+    port (
+      D0 : in  std_logic;
+      D1 : in  std_logic;
+      S0 : in  std_logic;
+      Y  : out std_logic
+      );
+  end component CC_MX2;
+
+  component CC_MX4 is
+    port (
+      D0 : in  std_logic;
+      D1 : in  std_logic;
+      D2 : in  std_logic;
+      D3 : in  std_logic;
+      S0 : in  std_logic;
+      S1 : in  std_logic;
+      Y  : out std_logic
+      );
+  end component CC_MX4;
+
+  -----------------------------------------------------------------------------
   -- Arithmetic Functions
   -----------------------------------------------------------------------------
+
+  -- Full adder using dedicated logic and routing resources inside
+  -- and between CPE cells. Two cascaded CC_ADDF primitives can be combined
+  -- into a single CPE forming a two-bit full adder.
+  component CC_ADDF is
+    port (
+      A  : in  std_logic;
+      B  : in  std_logic;
+      CI : in  std_logic;
+      CO : out std_logic;
+      S  : out std_logic
+      );
+  end component CC_ADDF;
+
+  -- The CC_MULT primitive is a scalable, signed multiplier with inputs of any width
+  component CC_MULT is
+    generic (
+      A_WIDTH : integer := 2; -- maximum 100
+      B_WIDTH : integer := 2;
+      P_WIDTH : integer := 4
+      );
+    port (
+      A : in  std_logic_vector(A_WIDTH-1 downto 0);
+      B : in  std_logic_vector(B_WIDTH-1 downto 0);
+      P : out std_logic_vector(P_WIDTH-1 downto 0)
+      );
+  end component CC_MULT;
 
   -----------------------------------------------------------------------------
   -- Block RAM
