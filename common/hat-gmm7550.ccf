@@ -1,5 +1,12 @@
 ## HAT Adapter board
 
+# This file is a part of the GMM-7550 VHDL Examples
+# <https://github.com/ak-fau/gmm7550-examples.git>
+#
+# SPDX-License-Identifier: MIT
+#
+# Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+
 # rework wire on the adapter board, clock input 25 MHz
 Pin_in  "clk3"          Loc = "IO_SB_A5";
 

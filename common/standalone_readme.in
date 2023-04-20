@@ -1,6 +1,7 @@
 # Standalone VHDL Example for GMM-7550 Module
 
-This `@NAME@` project has been exported on **@DATE@** from the `gmm7550-examples`
+This `@NAME@` project has been exported on **@DATE@** from the
+[`gmm7550-examples`](https://github.com/ak-fau/gmm7550-examples.git)
 version `@GIT_COMMIT@`.
 
 Build with
@@ -10,3 +11,10 @@ make synth | impl | pgm
 
 **NOTE:** The project may need adjustments for the build environment and locations
 of the tools (Yosys, openFPGAloader, CologneChip place-and-route tools).
+
+---
+
+## License
+
+SPDX-License-Identifier: MIT
+Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>

@@ -1,8 +1,9 @@
+# This file is a part of the GMM-7550 VHDL Examples
+# <https://github.com/ak-fau/gmm7550-examples.git>
 #
-# VHDL examples for GMM-7550 module
+# SPDX-License-Identifier: MIT
 #
-# Copyright (c) 2023 Anton Kuzmin
-#
+# Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
 
 EXAMPLES := blink_25 blink_25_pll blink_100_pll
 
