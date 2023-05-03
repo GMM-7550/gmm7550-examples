@@ -7,9 +7,6 @@
 #
 # Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
 
-# rework wire on the adapter board, clock input 25 MHz
-Pin_in  "clk3"          Loc = "IO_SB_A5";
-
 # D4 CFG_FAILED (Red)
 Pin_out "led_red_n"     Loc = "IO_WA_A2";
 
@@ -41,7 +38,7 @@ Pin_out   "J9_EN"       Loc = "IO_SB_B3";
 Pin_inout "J9_IO[0]"    Loc = "IO_SB_A6"; # CLK_2
 Pin_inout "J9_IO[1]"    Loc = "IO_SB_A7"; # CLK_1
 Pin_inout "J9_IO[2]"    Loc = "IO_SB_A8"; # CLK_0
-# Pin_inout "J9_IO[3]"    Loc = "IO_SB_A5"; # CLK_3
+Pin_inout "J9_IO[3]"    Loc = "IO_SB_A5"; # CLK_3
 Pin_inout "J9_IO[4]"    Loc = "IO_SB_B6";
 Pin_inout "J9_IO[5]"    Loc = "IO_SB_B7";
 Pin_inout "J9_IO[6]"    Loc = "IO_SB_B8";

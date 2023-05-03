@@ -5,7 +5,8 @@
 #
 # Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
 
-EXAMPLES := blink_25 blink_25_pll blink_100_pll
+EXAMPLES := blink_100_pll
+# EXAMPLES += blink_25 blink_25_pll
 
 NOLIB_TARGETS := clean distclean export
 TARGETS := synth impl pgm configs
