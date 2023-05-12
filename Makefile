@@ -7,6 +7,7 @@
 
 EXAMPLES := blink_100_pll
 # EXAMPLES += blink_25 blink_25_pll
+EXAMPLES += spi_bridge
 
 NOLIB_TARGETS := clean distclean export
 TARGETS := synth impl pgm configs

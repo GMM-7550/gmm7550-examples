@@ -30,13 +30,16 @@ WINE := WINEDEBUG=-all wine
 PR   := $(CC_TOOLCHAIN)-win/bin/p_r/p_r.exe
 endif
 
-NETLIST=$(SYNTHDIR)/$(TOP)_synth.v
-CFGFILE=$(IMPLDIR)/$(TOP)_00.cfg
+NETLIST ?= $(SYNTHDIR)/$(TOP)_synth.v
+CFGFILE ?= $(IMPLDIR)/$(TOP)_00.cfg
+
+LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
+LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
 synth: $(NETLIST)
 
 $(NETLIST): $(VHDL_SRC) $(CC_LIB) | $(WORKDIRS)
-	$(YOSYS) -ql $(LOGDIR)/$(TOP)_synth.log \
+	$(YOSYS) -ql $(LOGFILE_SYN) \
 	-p 'ghdl $(GHDL_FLAGS) $(VHDL_SRC) -e $(TOP)' \
 	-p 'synth_gatemate -top $(TOP) -nomx8' \
 	-p 'write_verilog -noattr $(NETLIST)'
@@ -44,7 +47,7 @@ $(NETLIST): $(VHDL_SRC) $(CC_LIB) | $(WORKDIRS)
 impl: $(CFGFILE)
 
 $(CFGFILE): $(NETLIST) $(CCF) | $(WORKDIRS)
-	(cd $(IMPLDIR) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS)) > $(LOGDIR)/$(TOP)_pnr.log
+	(cd $(IMPLDIR) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS)) > $(LOGFILE_PNR)
 
 pgm: $(CFGFILE)
 	$(OFL) $(OFLFLAGS) -c gatemate_pgm $(CFGFILE)

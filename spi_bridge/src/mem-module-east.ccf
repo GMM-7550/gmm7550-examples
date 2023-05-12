@@ -1,0 +1,64 @@
+## Memory module IO
+
+# This file is a part of the GMM-7550 VHDL Examples
+# <https://github.com/ak-fau/gmm7550-examples.git>
+#
+# SPDX-License-Identifier: MIT
+#
+# Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+
+# P1 (West)
+
+# P2 (North)
+
+# P3 (East)
+
+Pin_out   "M_SPI_nCS"     Loc = "IO_EB_B7";
+Pin_out   "M_SPI_CLK"     Loc = "IO_EB_A8";
+Pin_out   "M_SPI_MOSI"    Loc = "IO_EB_A5"; # IO0
+Pin_in    "M_SPI_MISO"    Loc = "IO_EB_A7"; # IO1
+
+Pin_inout "M_SPI_IO2"     Loc = "IO_EB_B5";
+Pin_inout "M_SPI_IO3"     Loc = "IO_EB_B8";
+
+# Pin_out   "SRAM_A[0]"   Loc = "IO_EB_B4";
+# Pin_out   "SRAM_A[1]"   Loc = "IO_EB_A4";
+# Pin_out   "SRAM_A[2]"   Loc = "IO_EB_B2";
+# Pin_out   "SRAM_A[3]"   Loc = "IO_EB_A2";
+# Pin_out   "SRAM_A[4]"   Loc = "IO_EB_B0";
+# Pin_out   "SRAM_A[5]"   Loc = "IO_EA_A2";
+# Pin_out   "SRAM_A[6]"   Loc = "IO_EA_B1";
+# Pin_out   "SRAM_A[7]"   Loc = "IO_EA_A1";
+# Pin_out   "SRAM_A[8]"   Loc = "IO_EA_B0";
+# Pin_out   "SRAM_A[9]"   Loc = "IO_EA_A0";
+# Pin_out   "SRAM_A[10]"  Loc = "IO_EA_A3";
+# Pin_out   "SRAM_A[11]"  Loc = "IO_EA_B3";
+# Pin_out   "SRAM_A[12]"  Loc = "IO_EA_A5";
+# Pin_out   "SRAM_A[13]"  Loc = "IO_EA_B5";
+# Pin_out   "SRAM_A[14]"  Loc = "IO_EA_A6";
+# Pin_out   "SRAM_A[15]"  Loc = "IO_EB_A3";
+# Pin_out   "SRAM_A[16]"  Loc = "IO_EB_B3";
+# Pin_out   "SRAM_A[17]"  Loc = "IO_EB_A6";
+# Pin_out   "SRAM_A[18]"  Loc = "IO_EB_B6";
+
+# Pin_inout "SRAM_D[0]"   Loc = "IO_EA_B7";
+# Pin_inout "SRAM_D[1]"   Loc = "IO_EA_A7";
+# Pin_inout "SRAM_D[2]"   Loc = "IO_EA_B4";
+# Pin_inout "SRAM_D[3]"   Loc = "IO_EA_A4";
+# Pin_inout "SRAM_D[4]"   Loc = "IO_EA_B6";
+# Pin_inout "SRAM_D[5]"   Loc = "IO_EA_A8";
+# Pin_inout "SRAM_D[6]"   Loc = "IO_EA_B8";
+# Pin_inout "SRAM_D[7]"   Loc = "IO_EB_A1";
+
+# Pin_out   "SRAM_nCE"    Loc = "IO_EB_A0";
+# Pin_out   "SRAM_nOE"    Loc = "IO_EB_B1";
+# Pin_out   "SRAM_nWE"    Loc = "IO_EA_B2";
+
+# P4 (South)
+
+# P5 (configuraion, system control)
+
+Pin_in    "S_SPI_nCS"     Loc = "IO_WA_A8";
+Pin_in    "S_SPI_CLK"     Loc = "IO_WA_B8";
+Pin_in    "S_SPI_MOSI"    Loc = "IO_WA_B7";
+Pin_out   "S_SPI_MISO"    Loc = "IO_WA_A7";

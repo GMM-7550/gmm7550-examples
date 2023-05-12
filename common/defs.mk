@@ -21,7 +21,7 @@ TAR   := tar
 SED   := sed
 
 SYNTHDIR := synthesis
-IMPLDIR  := pnr
+IMPLDIR  ?= pnr
 LOGDIR   := log
 WORKDIRS := $(SYNTHDIR) $(IMPLDIR) $(LOGDIR)
 
