@@ -20,6 +20,11 @@ GIT   := git
 TAR   := tar
 SED   := sed
 
+LUA       := /usr/bin/lua5.1
+LUA_INIT  :=
+LUA_PATH  := $(COMMONDIR)/?.lua
+LUA_CPATH :=
+
 SYNTHDIR := synthesis
 IMPLDIR  ?= pnr
 LOGDIR   := log
