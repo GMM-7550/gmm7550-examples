@@ -15,10 +15,10 @@ entity spi_bridge is
     J10_EN      : out std_logic;
 
     -- SPI slave interface (from a baseboard)
-    S_SPI_nCS   : in  std_logic;
-    S_SPI_CLK   : in  std_logic;
-    S_SPI_MOSI  : in  std_logic;
-    S_SPI_MISO  : out std_logic;
+    CFG_SPI_nCS : inout std_logic;
+    CFG_SPI_CLK : inout std_logic;
+    CFG_SPI_IO0 : inout std_logic; -- MOSI
+    CFG_SPI_IO1 : inout std_logic; -- MISO
 
     -- SPI master interface (to a memory module)
     M_SPI_nCS   : out std_logic;
@@ -52,32 +52,38 @@ begin
   led_green <= '1';
 
   -- spi_cs_n  <= S_SPI_nCS;
-  cs_ibuf: component CC_IBUF
+  cs_ibuf: component CC_IOBUF
     generic map (
       -- PIN_NAME => "IO_WA_A8",
       PULLUP => 1)
   port map (
-    I => S_SPI_nCS,
-    Y => spi_cs_n);
+    A  => '1',
+    T  => '1',
+    Y  => spi_cs_n,
+    IO => CFG_SPI_nCS);
 
   -- spi_clk   <= S_SPI_CLK;
-  clk_ibuf: component CC_IBUF
+  clk_ibuf: component CC_IOBUF
     generic map (
       -- PIN_NAME => "IO_WA_B8",
-      SCHMITT_TRIGGER => 1,
+      -- SCHMITT_TRIGGER => 1,
       PULLDOWN => 1)
   port map (
-    I => S_SPI_CLK,
-    Y => spi_clk);
+    A  => '1',
+    T  => '1',
+    Y  => spi_clk,
+    IO => CFG_SPI_CLK);
 
   -- spi_io(0) <= S_SPI_MOSI;
-  io0_ibuf: component CC_IBUF
+  io0_ibuf: component CC_IOBUF
     generic map (
       -- PIN_NAME => "IO_WA_B7",
       PULLDOWN => 1)
   port map (
-    I => S_SPI_MOSI,
-    Y => spi_io(0));
+    A  => '1',
+    T  => '1',
+    Y  => spi_io(0),
+    IO => CFG_SPI_IO0);
 
   -- spi_io(1) <= M_SPI_MISO;
   io1_ibuf: component CC_IBUF
@@ -90,14 +96,15 @@ begin
   spi_io(2) <= '1';
   spi_io(3) <= '1';
 
-  io1_driver: component CC_TOBUF
+  io1_driver: component CC_IOBUF
     generic map (
       -- PIN_NAME => "IO_WA_A7",
       PULLDOWN => 1)
   port map (
-    A => spi_io(1),
-    T => spi_cs_n,
-    O => S_SPI_MISO);
+    A  => spi_io(1),
+    T  => spi_cs_n,
+    Y  => open,
+    IO => CFG_SPI_IO1);
 
   -- M_SPI_nCS  <= spi_cs_n;
   cs_driver: component CC_OBUF
