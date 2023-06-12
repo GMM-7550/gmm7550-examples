@@ -1,3 +1,5 @@
 log/
 synthesis/
 pnr/
+configs/
+exports/
