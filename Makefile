@@ -13,9 +13,7 @@ NOLIB_TARGETS := clean distclean export
 TARGETS := synth impl pgm configs
 
 VHDL_STANDARD := 08
-CC_LIB_NAME   := cc
 export VHDL_STANDARD
-export CC_LIB_NAME
 
 .PHONY: all $(TARGETS) $(NOLIB_TARGETS) $(EXAMPLES)
 .PHONY: libs
@@ -46,19 +44,16 @@ COMMONDIR := $(TOPDIR)/common
 
 include $(COMMONDIR)/defs.mk
 
-# Output directory for FPGA configuration files
-CFGDIR := $(TOPDIR)/configs
-
-# Output directory for exported (standalone) examples
-EXPORTDIR := $(TOPDIR)/exports
-
+export CC_LIB_NAME
 export TOPDIR
 export COMMONDIR
 export CFGDIR
 export EXPORTDIR
 
 export: $(EXAMPLES)
+
 $(TARGETS): $(EXAMPLES)
+	@true
 
 $(EXAMPLES):
 	$(MAKE) -C $@ $(GOALS)
@@ -68,8 +63,7 @@ clean: $(EXAMPLES)
 
 distclean: $(EXAMPLES)
 	$(MAKE) -C $(CC_LIB_DIR) $@
-	$(RM) -r $(CFGDIR)
-	$(RM) -r $(EXPORTDIR)
+	$(RM) -r $(OUTPUT_DIRS)
 
 libs: $(CC_LIB)
 

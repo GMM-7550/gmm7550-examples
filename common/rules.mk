@@ -7,21 +7,48 @@
 
 all: $(TOP)
 
-include $(COMMONDIR)/defs.mk
 include $(COMMONDIR)/flow.mk
 
-.PHONY: all clean distclean configs $(TOP)
+.PHONY: all clean clean_libs distclean configs export $(TOP)
+.PHONY: libs synth impl pgm
 
 $(TOP): impl
 
-$(WORKDIRS) $(CFGDIR):
+synth: $(NETLIST)
+
+SRC_FILES := $(VHDL_SRC) $(VERILOG_SRC)
+
+$(NETLIST): $(SRC_FILES) libs | $(SYNTHDIR) $(LOGDIR)
+	$(call run_synthesis)
+
+impl: $(CFGFILE)
+
+pgm: $(CFGFILE)
+	$(call run_configure)
+
+libs: $(CC_LIB)
+
+$(CC_LIB):
+	$(MAKE) -C $(CC_LIB_DIR)
+
+$(CFGFILE): $(NETLIST) $(CCF) | $(IMPLDIR) $(LOGDIR)
+	$(call run_place_and_route)
+
+$(BITFILE): $(CFGFILE)
+	@true
+
+$(WORKDIRS) $(CFGDIR) $(EXPORTDIR):
 	$(MKDIR) $@
 
-configs: $(TOP) | $(CFGDIR)
-	$(CP) $(IMPLDIR)/*.cfg     $(CFGDIR)
-	$(CP) $(IMPLDIR)/*.cfg.bit $(CFGDIR)
+CFGFILES ?= $(CFGFILE) $(BITFILE)
+
+configs: $(CFGFILES) | $(CFGDIR)
+	$(CP) $(CFGFILES) $(CFGDIR)
 
 clean:
 	$(RM) -r $(WORKDIRS)
 
-distclean: clean
+clean_libs:
+	$(MAKE) -C $(CC_LIB_DIR) clean
+
+distclean: clean clean_libs

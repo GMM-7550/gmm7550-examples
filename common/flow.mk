@@ -5,8 +5,6 @@
 #
 # Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
 
-.PHONY: synth impl pgm
-
 PRFLAGS ?= +uCIO
 
 CCF ?= ../src/$(TOP).ccf
@@ -31,23 +29,25 @@ PR   := $(CC_TOOLCHAIN)-win/bin/p_r/p_r.exe
 endif
 
 NETLIST ?= $(SYNTHDIR)/$(TOP)_synth.v
-CFGFILE ?= $(IMPLDIR)/$(TOP)_00.cfg
+CFGFILE ?= $(IMPLDIR)/$(TOP).cfg
+BITFILE ?= $(IMPLDIR)/$(TOP).bit
 
 LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
-synth: $(NETLIST)
+define run_synthesis
+  $(YOSYS) -ql $(LOGFILE_SYN) \
+  -p 'ghdl $(GHDL_FLAGS) $(VHDL_SRC) -e $(TOP)' \
+  -p 'synth_gatemate -top $(TOP) -nomx8' \
+  -p 'write_verilog -noattr $(NETLIST)'
+endef
 
-$(NETLIST): $(VHDL_SRC) $(CC_LIB) | $(WORKDIRS)
-	$(YOSYS) -ql $(LOGFILE_SYN) \
-	-p 'ghdl $(GHDL_FLAGS) $(VHDL_SRC) -e $(TOP)' \
-	-p 'synth_gatemate -top $(TOP) -nomx8' \
-	-p 'write_verilog -noattr $(NETLIST)'
+define run_place_and_route
+  (cd $(IMPLDIR) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS)) > $(LOGFILE_PNR)
+  $(CP) $(CFGFILE:.cfg=_00.cfg) $(CFGFILE)
+  $(CP) $(CFGFILE:.cfg=_00.cfg.bit) $(BITFILE)
+endef
 
-impl: $(CFGFILE)
-
-$(CFGFILE): $(NETLIST) $(CCF) | $(WORKDIRS)
-	(cd $(IMPLDIR) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS)) > $(LOGFILE_PNR)
-
-pgm: $(CFGFILE)
-	$(OFL) $(OFLFLAGS) -c gatemate_pgm $(CFGFILE)
+define run_configure
+  $(OFL) $(OFLFLAGS) -c gatemate_pgm $(CFGFILE)
+endef

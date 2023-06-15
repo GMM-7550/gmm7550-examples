@@ -8,7 +8,6 @@
 ECHO  := @echo
 #ECHO  := true
 
-PWD   := pwd
 CAT   := cat
 CUT   := cut
 CP    := cp --archive --update --force --backup=never
@@ -30,5 +29,14 @@ IMPLDIR  ?= pnr
 LOGDIR   := log
 WORKDIRS := $(SYNTHDIR) $(IMPLDIR) $(LOGDIR)
 
-CC_LIB_DIR := $(TOPDIR)/$(CC_LIB_NAME)
+# Output directory for FPGA configuration files
+CFGDIR := $(TOPDIR)/configs
+
+# Output directory for exported (standalone) examples
+EXPORTDIR := $(TOPDIR)/exports
+
+OUTPUT_DIRS := $(CFGDIR) $(EXPORTDIR)
+
+CC_LIB_NAME := cc
+CC_LIB_DIR  := $(TOPDIR)/$(CC_LIB_NAME)
 CC_LIB := $(CC_LIB_DIR)/$(SYNTHDIR)/$(CC_LIB_NAME)-obj$(VHDL_STANDARD).cf
