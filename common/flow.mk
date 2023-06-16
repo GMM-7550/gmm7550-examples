@@ -29,8 +29,10 @@ PR   := $(CC_TOOLCHAIN)-win/bin/p_r/p_r.exe
 endif
 
 NETLIST ?= $(SYNTHDIR)/$(TOP)_synth.v
-CFGFILE ?= $(IMPLDIR)/$(TOP).cfg
-BITFILE ?= $(IMPLDIR)/$(TOP).bit
+
+CFG_00  ?= $(IMPLDIR)/$(TOP)_00.cfg
+CFGFILE ?= $(IMPLDIR)/$(TOP)_$(GITCOMMIT)_$(TIMESTAMP).cfg
+BITFILE ?= $(IMPLDIR)/$(TOP)_$(GITCOMMIT)_$(TIMESTAMP).bit
 
 LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
@@ -44,8 +46,8 @@ endef
 
 define run_place_and_route
   (cd $(IMPLDIR) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS)) > $(LOGFILE_PNR)
-  $(CP) $(CFGFILE:.cfg=_00.cfg) $(CFGFILE)
-  $(CP) $(CFGFILE:.cfg=_00.cfg.bit) $(BITFILE)
+  $(CP) $(CFG_00)     $(CFGFILE)
+  $(CP) $(CFG_00).bit $(BITFILE)
 endef
 
 define run_configure

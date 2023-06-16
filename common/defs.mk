@@ -19,6 +19,13 @@ GIT   := git
 TAR   := tar
 SED   := sed
 
+TIMESTAMP := $(shell $(DATE) --utc +%F_%H%M%S)
+
+GITCOMMIT := $(shell $(GIT) rev-parse --short HEAD)
+ifneq (,$(shell $(GIT) status --porcelain))
+GITCOMMIT := $(GITCOMMIT)-dirty
+endif
+
 LUA       := /usr/bin/lua5.1
 LUA_INIT  :=
 LUA_PATH  := $(COMMONDIR)/?.lua
