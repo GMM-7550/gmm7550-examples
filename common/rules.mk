@@ -9,7 +9,8 @@ all: $(TOP)
 
 include $(COMMONDIR)/flow.mk
 
-.PHONY: all clean clean_libs distclean configs export $(TOP)
+.PHONY: all clean clean_libs distclean $(TOP)
+.PHONY: configs export manifest
 .PHONY: libs synth impl pgm
 
 $(TOP): impl
@@ -44,6 +45,10 @@ CFGFILES ?= $(CFGFILE) $(BITFILE)
 
 configs: $(CFGFILES) | $(CFGDIR)
 	$(CP) $(CFGFILES) $(CFGDIR)
+	$(call create_manifest, $(CFGDIR)/$(MANIFEST))
+
+manifest: | $(IMPLDIR)
+	$(call create_manifest, $(IMPLDIR)/$(MANIFEST))
 
 clean:
 	$(RM) -r $(WORKDIRS)

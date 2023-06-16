@@ -34,6 +34,8 @@ CFG_00  ?= $(IMPLDIR)/$(TOP)_00.cfg
 CFGFILE ?= $(IMPLDIR)/$(TOP)_$(GITCOMMIT)_$(TIMESTAMP).cfg
 BITFILE ?= $(IMPLDIR)/$(TOP)_$(GITCOMMIT)_$(TIMESTAMP).bit
 
+MANIFEST ?= tools_manifest_$(TIMESTAMP).md
+
 LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
@@ -52,4 +54,40 @@ endef
 
 define run_configure
   $(OFL) $(OFLFLAGS) -c gatemate_pgm $(CFGFILE)
+endef
+
+define create_manifest
+  @$(RM) $(1)
+
+  @echo "# Yosys"              > $(1)
+  @echo ""                    >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo "~$$ yosys -V"        >> $(1)
+  @$(YOSYS) -V                >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo ""                    >> $(1)
+
+  @echo "# GHDL" >> $(1)
+  @echo ""                    >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo "~$$ ghdl --version"  >> $(1)
+  @$(GHDL) --version | head -3 >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo ""                    >> $(1)
+
+  @echo "# GHDL Yosys Plugin" >> $(1)
+  @echo ""                    >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo "~$$ pacman -Qi ghdl-yosys-plugin" >> $(1)
+  @LC_ALL=C pacman -Qi ghdl-yosys-plugin >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo ""                    >> $(1)
+
+  @echo "# Cologne Chip Place-n-Route" >> $(1)
+  @echo ""                    >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo "~$$ p_r --help"      >> $(1)
+  @$(PR) --help | head -3     >> $(1)
+  @echo "\`\`\`"              >> $(1)
+  @echo ""                    >> $(1)
 endef
