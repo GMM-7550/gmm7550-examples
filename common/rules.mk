@@ -19,36 +19,46 @@ synth: $(NETLIST)
 
 SRC_FILES := $(VHDL_SRC) $(VERILOG_SRC)
 
-$(NETLIST): $(SRC_FILES) libs | $(SYNTHDIR) $(LOGDIR)
+$(NETLIST): $(SRC_FILES) $(LIBS) | $(SYNTHDIR) $(LOGDIR)
 	$(call run_synthesis)
 
-impl: $(CFGFILE)
+CFG_00  ?= $(IMPLDIR)/$(TOP)_00.cfg
 
-pgm: $(CFGFILE)
-	$(call run_configure)
+impl: $(CFG_00)
 
-libs: $(CC_LIB)
+$(CFG_00) $(CFG_00).bit &: $(NETLIST) $(CCF) | $(IMPLDIR) $(LOGDIR)
+	$(call run_place_and_route, $(IMPLDIR), ../$(CCF), $(LOGFILE_PNR))
+
+pgm: $(CFG_00)
+	$(call run_configure, $<)
+
+libs: $(LIBS)
 
 $(CC_LIB):
 	$(MAKE) -C $(CC_LIB_DIR)
 
-$(CFGFILE): $(NETLIST) $(CCF) | $(IMPLDIR) $(LOGDIR)
-	$(call run_place_and_route)
+CFGFILE ?= $(TOP)_$(GITCOMMIT)_$(TIMESTAMP).cfg
+BITFILE ?= $(TOP)_$(GITCOMMIT)_$(TIMESTAMP).bit
 
-$(BITFILE): $(CFGFILE)
-	@true
+CFGFILES := $(addprefix $(CFGDIR)/, $(CFGFILE) $(BITFILE))
+MANIFEST ?= tools_manifest_$(TIMESTAMP).md
 
 $(WORKDIRS) $(CFGDIR) $(EXPORTDIR):
 	$(MKDIR) $@
 
-CFGFILES ?= $(CFGFILE) $(BITFILE)
+configs: $(addprefix $(CFGDIR)/, $(CFGFILE) $(BITFILE) $(MANIFEST))
 
-configs: $(CFGFILES) | $(CFGDIR)
-	$(CP) $(CFGFILES) $(CFGDIR)
+$(CFGDIR)/$(CFGFILE): $(CFG_00) | $(CFGDIR)
+	$(CP) $(CFG_00) $(CFGDIR)/$(CFGFILE)
+
+$(CFGDIR)/$(BITFILE): $(CFG_00).bit | $(CFGDIR)
+	$(CP) $(CFG_00).bit $(CFGDIR)/$(BITFILE)
+
+$(CFGDIR)/$(MANIFEST): | $(CFGDIR)
 	$(call create_manifest, $(CFGDIR)/$(MANIFEST))
 
-manifest: | $(IMPLDIR)
-	$(call create_manifest, $(IMPLDIR)/$(MANIFEST))
+manifest: | $(LOGDIR)
+	$(call create_manifest, $(LOGDIR)/$(MANIFEST))
 
 clean:
 	$(RM) -r $(WORKDIRS)
@@ -57,3 +67,4 @@ clean_libs:
 	$(MAKE) -C $(CC_LIB_DIR) clean
 
 distclean: clean clean_libs
+	$(RM) $(CFGDIR)/$(TOP)_*

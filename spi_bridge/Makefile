@@ -5,43 +5,97 @@
 #
 # Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
 
-ifdef COMMONDIR
-  include $(COMMONDIR)/defs.mk
-else
-  TOPDIR := ..
-  COMMONDIR := $(TOPDIR)/common
-  include ../common/defs.mk
-endif
+PWD := $(shell pwd)
+
+TOPDIR ?= $(PWD)/..
+COMMONDIR ?= $(TOPDIR)/common
+export TOPDIR
+export COMMONDIR
+
+include $(COMMONDIR)/defs.mk
+include $(COMMONDIR)/flow.mk
 
 # By default, top entity name is the same as an example directory
-TOP := $(notdir $(shell $(PWD)))
+TOP := $(notdir $(PWD))
 
 VHDL_SRC := $(wildcard src/*.vhd)
 
 DIRS := east west north
 
-.PHONY: local_all local_clean local_impl libs
+.PHONY: all synth impl libs manifest
+.PHONY: $(DIRS)
 
-local_impl: libs
-	for DIR in $(DIRS); do \
-	    DIR=$${DIR} CCF=$(IMPLDIR)_$${DIR}/spi_bridge_$${DIR}.ccf \
-	    IMPLDIR=$(IMPLDIR)_$${DIR} LOGFILE_PNR=$(LOGDIR)/$(TOP)_$${DIR}_pnr.log \
-	    $(MAKE) -C .. $(TOP) impl; \
-	done
+all: impl
 
-libs:
-	$(MAKE) -C .. $@
+synth: $(NETLIST)
 
-clean: local_clean
-
-local_clean:
-	$(foreach D, $(DIRS), $(RM) -r $(IMPLDIR)_$(D);)
-
-include $(COMMONDIR)/rules.mk
-include $(COMMONDIR)/export.mk
+$(NETLIST): $(VHDL_SRC) $(CC_LIB) | $(SYNTHDIR) $(LOGDIR)
+	$(call run_synthesis)
 
 PINOUT := $(COMMONDIR)/mem-io.lua
 
-$(IMPLDIR)/spi_bridge_%.ccf: $(PINOUT) | $(IMPLDIR)
-	$(CAT) $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/hat-gmm7550.ccf > $@
-	$(LUA) $(PINOUT) $(DIR) >> $@
+impl: synth $(DIRS)
+
+$(SYNTHDIR)/dirs.mk: Makefile | $(SYNTHDIR)
+	$(RM) $@
+	@for D in $(DIRS); do \
+	  echo "#######################################################################################" >> $@; \
+	  echo "# " $${D} >> $@; \
+	  echo "#######################################################################################" >> $@; \
+	  echo $${D}: $(IMPLDIR)_$${D}/$(TOP)_00.cfg >> $@; \
+	  echo "" >> $@; \
+	  echo $(IMPLDIR)_$${D}/$(TOP)_00.cfg: $(NETLIST) $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf "| " $(IMPLDIR)_$${D} >> $@; \
+	  echo "" >> $@; \
+	  echo -e "\t$(call run_place_and_route, " $(IMPLDIR)_$${D} ", " \
+	          ../$(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf ", " $(LOGDIR)/$(TOP)_$${D}_pnr.log ")" >> $@; \
+	  echo "" >> $@; \
+	  echo $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf: $(PINOUT) "| " $(IMPLDIR)_$${D} >> $@; \
+	  echo "" >> $@; \
+	  echo -e "\t" $(CAT) $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/hat-gmm7550.ccf " > " $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf >> $@; \
+	  echo "" >> $@; \
+	  echo -e "\t" $(LUA) $(PINOUT) $${D} " >> " $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf >> $@; \
+	  echo "" >> $@; \
+	done
+
+include $(SYNTHDIR)/dirs.mk
+
+CFGFILES := $(foreach D, $(DIRS), $(TOP)_$(D)_$(GITCOMMIT)_$(TIMESTAMP).cfg)
+BITFILES := $(foreach D, $(DIRS), $(TOP)_$(D)_$(GITCOMMIT)_$(TIMESTAMP).bit)
+
+CFGFILES := $(addprefix $(CFGDIR)/, $(CFGFILES) $(BITFILES))
+MANIFEST := tools_manifest_$(TIMESTAMP).md
+
+configs: $(CFGFILES) $(CFGDIR)/$(MANIFEST)
+
+$(CFGDIR)/$(TOP)_%_$(GITCOMMIT)_$(TIMESTAMP).cfg: pnr_%/$(TOP)_00.cfg | $(CFGDIR)
+	$(CP) $< $@
+
+$(CFGDIR)/$(TOP)_%_$(GITCOMMIT)_$(TIMESTAMP).bit: pnr_%/$(TOP)_00.cfg.bit | $(CFGDIR)
+	$(CP) $< $@
+
+$(CFGDIR)/$(MANIFEST): | $(CFGDIR)
+	$(call create_manifest, $(CFGDIR)/$(MANIFEST))
+
+manifest: | $(LOGDIR)
+	$(call create_manifest, $(LOGDIR)/$(MANIFEST))
+
+$(IMPLDIR)_%:
+	$(MKDIR) $@
+
+$(SYNTHDIR) $(LOGDIR) $(CFGDIR) $(EXPORTDIR):
+	$(MKDIR) $@
+
+libs: $(CC_LIB)
+
+$(CC_LIB):
+	$(MAKE) -C $(CC_LIB_DIR)
+
+clean:
+	$(RM) -r $(SYNTHDIR) $(LOGDIR)
+	$(RM) -r $(addprefix $(IMPLDIR)_, $(DIRS))
+
+clean_libs:
+	$(MAKE) -C $(CC_LIB_DIR) clean
+
+distclean: clean clean_libs
+	$(RM) $(CFGDIR)/$(TOP)_*

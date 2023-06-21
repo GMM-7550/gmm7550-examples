@@ -19,7 +19,9 @@ GIT   := git
 TAR   := tar
 SED   := sed
 
-TIMESTAMP := $(shell $(DATE) --utc +%F_%H%M%S)
+VHDL_STANDARD := 08
+
+TIMESTAMP := $(shell $(DATE) --utc --iso-8601=date)
 
 GITCOMMIT := $(shell $(GIT) rev-parse --short HEAD)
 ifneq (,$(shell $(GIT) status --porcelain))
@@ -32,7 +34,7 @@ LUA_PATH  := $(COMMONDIR)/?.lua
 LUA_CPATH :=
 
 SYNTHDIR := synthesis
-IMPLDIR  ?= pnr
+IMPLDIR  := pnr
 LOGDIR   := log
 WORKDIRS := $(SYNTHDIR) $(IMPLDIR) $(LOGDIR)
 
@@ -47,3 +49,5 @@ OUTPUT_DIRS := $(CFGDIR) $(EXPORTDIR)
 CC_LIB_NAME := cc
 CC_LIB_DIR  := $(TOPDIR)/$(CC_LIB_NAME)
 CC_LIB := $(CC_LIB_DIR)/$(SYNTHDIR)/$(CC_LIB_NAME)-obj$(VHDL_STANDARD).cf
+
+LIBS := $(CC_LIB)

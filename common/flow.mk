@@ -7,9 +7,6 @@
 
 PRFLAGS ?= +uCIO
 
-CCF ?= ../src/$(TOP).ccf
-PRFLAGS += -ccf ../$(CCF)
-
 ifeq ($(D),1)
 PRFLAGS += +d
 endif
@@ -30,12 +27,6 @@ endif
 
 NETLIST ?= $(SYNTHDIR)/$(TOP)_synth.v
 
-CFG_00  ?= $(IMPLDIR)/$(TOP)_00.cfg
-CFGFILE ?= $(IMPLDIR)/$(TOP)_$(GITCOMMIT)_$(TIMESTAMP).cfg
-BITFILE ?= $(IMPLDIR)/$(TOP)_$(GITCOMMIT)_$(TIMESTAMP).bit
-
-MANIFEST ?= tools_manifest_$(TIMESTAMP).md
-
 LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
@@ -47,18 +38,16 @@ define run_synthesis
 endef
 
 define run_place_and_route
-  (cd $(IMPLDIR) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS)) > $(LOGFILE_PNR)
-  $(CP) $(CFG_00)     $(CFGFILE)
-  $(CP) $(CFG_00).bit $(BITFILE)
+  (cd $(1) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS) -ccf $(2)) > $(3)
 endef
 
 define run_configure
-  $(OFL) $(OFLFLAGS) -c gatemate_pgm $(CFGFILE)
+  $(OFL) $(OFLFLAGS) -c gatemate_pgm $(1)
 endef
 
 define create_manifest
   @$(RM) $(1)
-
+  @echo "Creating tools manifest file: " $(1)
   @echo "# Yosys"              > $(1)
   @echo ""                    >> $(1)
   @echo "\`\`\`"              >> $(1)

@@ -5,14 +5,9 @@
 #
 # Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
 
-EXAMPLE_NAME := $(notdir $(shell $(PWD)))
-EXPORT_DATE  := $(shell $(DATE) -I)
-GIT_COMMIT   := $(shell $(GIT) rev-parse --short HEAD)
-ifneq (,$(shell git status --porcelain))
-GIT_COMMIT   := $(GIT_COMMIT)-dirty
-endif
+EXAMPLE_NAME := $(notdir $(PWD))
 
-EXP_NAME := $(EXAMPLE_NAME)_$(EXPORT_DATE)_$(GIT_COMMIT)
+EXP_NAME := $(EXAMPLE_NAME)_$(GITCOMMIT)_$(TIMESTAMP)
 TARBALL  := $(EXP_NAME).tar.xz
 
 SED_CMD := $(SED) -e 's/@NAME@/$(EXAMPLE_NAME)/'
@@ -20,9 +15,6 @@ SED_CMD += -e 's/@DATE@/$(EXPORT_DATE)/'
 SED_CMD += -e 's/@GIT_COMMIT@/$(GIT_COMMIT)/'
 
 export: $(TARBALL) | $(EXPORTDIR)
-
-$(EXPORTDIR):
-	$(MKDIR) $@
 
 $(TARBALL): $(EXPORTDIR)/$(EXP_NAME) | $(EXPORTDIR)
 	(cd $(EXPORTDIR) && $(TAR) --xz --create --file $@ $(EXP_NAME))
