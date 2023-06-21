@@ -10,7 +10,7 @@ ECHO  := @echo
 
 CAT   := cat
 CUT   := cut
-CP    := cp --archive --update --force --backup=never
+CP    := cp --archive --update --force --backup=off
 RM    := rm -f
 MKDIR := mkdir -p
 GREP  := grep
