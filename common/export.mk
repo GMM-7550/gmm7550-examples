@@ -22,6 +22,10 @@ $(TARBALL): $(EXPORTDIR)/$(EXP_NAME) | $(EXPORTDIR)
 	@echo "##### Standalone example code is exported to"
 	@echo "##### " $(EXPORTDIR)/$(TARBALL)
 
+COMMON_FILES ?= $(COMMONDIR)/{defs.mk,ghdl.mk,flow.mk,rules.mk,*ccf}
+MAKEFILE_IN  ?= $(COMMONDIR)/standalone_makefile.in
+
+$(EXPORTDIR)/$(EXP_NAME): T_COMMON=$@/common
 $(EXPORTDIR)/$(EXP_NAME):
 	$(MKDIR) $@
 	$(CP) --recursive --dereference  src $@/
@@ -29,10 +33,10 @@ $(EXPORTDIR)/$(EXP_NAME):
 	$(CP) --recursive --dereference ../$(CC_LIB_NAME) $@/
 	-$(CP) --recursive --dereference sim $@/
 	-$(CP) --recursive --dereference tb  $@/
-	$(MKDIR) $@/common
-	for f in $(COMMONDIR)/{defs.mk,ghdl.mk,flow.mk,rules.mk,*ccf}; do \
-	  $(CP) $$f $@/common/; \
+	$(MKDIR) $(T_COMMON)
+	for f in $(COMMON_FILES); do \
+	  $(CP) $$f $(T_COMMON); \
 	done
 	$(CP) $(TOPDIR)/LICENSE.txt $@/
 	$(SED_CMD) $(COMMONDIR)/standalone_readme.in > $@/README.md
-	$(SED_CMD) $(COMMONDIR)/standalone_makefile.in > $@/Makefile
+	$(SED_CMD) $(MAKEFILE_IN) > $@/Makefile
