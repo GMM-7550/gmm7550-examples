@@ -16,6 +16,7 @@ VHDL_STANDARD := 08
 export VHDL_STANDARD
 
 .PHONY: all $(TARGETS) $(NOLIB_TARGETS) $(EXAMPLES)
+.PHONY: help
 .PHONY: libs
 
 SUBDIRS := $(filter     $(EXAMPLES),$(MAKECMDGOALS))
@@ -25,6 +26,19 @@ GOALS   := $(filter-out $(EXAMPLES),$(MAKECMDGOALS))
 ifneq (,$(SUBDIRS))
 EXAMPLES := $(SUBDIRS)
 endif
+
+help:
+	$(ECHO) "Example projects for GMM-7550 module"
+	$(ECHO)
+	$(ECHO) "Usage: make [TARGETs] [EXAMPLEs]"
+	$(ECHO)
+	$(ECHO) "Available targets:"
+	$(ECHO) "  help, all, clean, distclean,"
+	$(ECHO) "  synth, impl, pgm,"
+	$(ECHO) "  configs, export, manifest"
+	$(ECHO)
+	$(ECHO) "Available examples:"
+	$(ECHO) "  " $(EXAMPLES)
 
 all: $(EXAMPLES)
 
