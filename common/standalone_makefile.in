@@ -17,7 +17,7 @@ VHDL_SRC := $(wildcard src/*.vhd)
 all: $(TOP)
 
 TOPDIR := $(shell pwd)
-COMMONDIR := $(TOPDIR)/mk
+COMMONDIR := $(TOPDIR)/common
 export TOPDIR
 export COMMONDIR
 
@@ -35,28 +35,14 @@ CC_TOOLCHAIN := $(TOPDIR)/../../../cc-toolchain
 
 CCF := $(IMPLDIR)/$(TOP).ccf
 
-include $(COMMONDIR)/flow.mk
-
-.PHONY: all clean distclean $(TOP)
-
-$(TOP): impl
-
-$(WORKDIRS):
-	$(MKDIR) $@
-
-.PHONY: libs $(CC_LIB_NAME)
-
-libs: $(CC_LIB)
-
-$(CC_LIB):
-	$(MAKE) -C $(CC_LIB_DIR)
+include $(COMMONDIR)/rules.mk
 
 $(CCF): | $(IMPLDIR)
 	$(CAT) $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/hat-gmm7550.ccf > $@
 
-clean:
-	$(MAKE) -C $(CC_LIB_DIR) $@
-	$(RM) -r $(WORKDIRS)
+.PHONE: clean_configs
 
-distclean: clean
-	$(MAKE) -C $(CC_LIB_DIR) $@
+clean_configs:
+	$(RM) -r $(CFGDIR)
+
+distclean: clean_configs

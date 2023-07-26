@@ -11,8 +11,8 @@ EXP_NAME := $(EXAMPLE_NAME)_$(GITCOMMIT)_$(TIMESTAMP)
 TARBALL  := $(EXP_NAME).tar.xz
 
 SED_CMD := $(SED) -e 's/@NAME@/$(EXAMPLE_NAME)/'
-SED_CMD += -e 's/@DATE@/$(EXPORT_DATE)/'
-SED_CMD += -e 's/@GIT_COMMIT@/$(GIT_COMMIT)/'
+SED_CMD += -e 's/@DATE@/$(TIMESTAMP)/'
+SED_CMD += -e 's/@GIT_COMMIT@/$(GITCOMMIT)/'
 
 export: $(TARBALL) | $(EXPORTDIR)
 
@@ -23,16 +23,16 @@ $(TARBALL): $(EXPORTDIR)/$(EXP_NAME) | $(EXPORTDIR)
 	@echo "##### " $(EXPORTDIR)/$(TARBALL)
 
 $(EXPORTDIR)/$(EXP_NAME):
-	$(MKDIR) $(EXPORTDIR)/$(EXP_NAME)
-	$(CP) --recursive --dereference  src $(EXPORTDIR)/$(EXP_NAME)/
+	$(MKDIR) $@
+	$(CP) --recursive --dereference  src $@/
 	$(MAKE) -C ../$(CC_LIB_NAME) distclean
-	$(CP) --recursive --dereference ../$(CC_LIB_NAME) $(EXPORTDIR)/$(EXP_NAME)/
-	-$(CP) --recursive --dereference sim $(EXPORTDIR)/$(EXP_NAME)/
-	-$(CP) --recursive --dereference tb  $(EXPORTDIR)/$(EXP_NAME)/
-	$(MKDIR) $(EXPORTDIR)/$(EXP_NAME)/mk
-	for f in $(COMMONDIR)/{defs.mk,ghdl.mk,flow.mk,*ccf}; do \
-	  $(CP) $$f $(EXPORTDIR)/$(EXP_NAME)/mk/; \
+	$(CP) --recursive --dereference ../$(CC_LIB_NAME) $@/
+	-$(CP) --recursive --dereference sim $@/
+	-$(CP) --recursive --dereference tb  $@/
+	$(MKDIR) $@/common
+	for f in $(COMMONDIR)/{defs.mk,ghdl.mk,flow.mk,rules.mk,*ccf}; do \
+	  $(CP) $$f $@/common/; \
 	done
-	$(CP) $(TOPDIR)/LICENSE.txt $(EXPORTDIR)/$(EXP_NAME)/
-	$(SED_CMD) $(COMMONDIR)/standalone_readme.in > $(EXPORTDIR)/$(EXP_NAME)/README.md
-	$(SED_CMD) $(COMMONDIR)/standalone_makefile.in > $(EXPORTDIR)/$(EXP_NAME)/Makefile
+	$(CP) $(TOPDIR)/LICENSE.txt $@/
+	$(SED_CMD) $(COMMONDIR)/standalone_readme.in > $@/README.md
+	$(SED_CMD) $(COMMONDIR)/standalone_makefile.in > $@/Makefile
