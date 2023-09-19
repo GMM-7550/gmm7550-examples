@@ -8,6 +8,7 @@
 EXAMPLES := blink_100_pll
 # EXAMPLES += blink_25 blink_25_pll
 EXAMPLES += spi_bridge serial_loopback
+EXAMPLES += led8
 
 NOLIB_TARGETS := clean distclean export manifest
 TARGETS := synth impl pgm configs
