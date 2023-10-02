@@ -12,8 +12,7 @@ use work.bcm_pkg.all;
 entity bcm is
   generic (
     CH_NUM    : integer := 1;
-    BCM_WIDTH : integer := 4;
-    CNT_WIDTH : integer := 4
+    BCM_WIDTH : integer := 4
     );
   port (
     clk       : in  std_logic;
@@ -25,36 +24,38 @@ entity bcm is
 end entity bcm;
 
 architecture rtl of bcm is
+  constant CNT_WIDTH : integer := 12;
+
   signal bcm_e : std_logic_vector_array_t(CH_NUM-1 downto 0)(CNT_WIDTH-1 downto 0);
   signal mask  : std_logic_vector(CNT_WIDTH-1 downto 0);
   signal cnt   : std_logic_vector(CNT_WIDTH-1 downto 0);
   signal shift : std_logic;
 
-  function exp_4_8(constant x : std_logic_vector(3 downto 0))
+  function exp_4_12(constant x : std_logic_vector(3 downto 0))
     return std_logic_vector is
-    variable f : std_logic_vector(7 downto 0);
+    variable f : std_logic_vector(11 downto 0);
   begin
     case x is
-      when x"0" => f := x"00";
-      when x"1" => f := x"0a";
-      when x"2" => f := x"15";
-      when x"3" => f := x"21";
-      when x"4" => f := x"2d";
-      when x"5" => f := x"3b";
-      when x"6" => f := x"49";
-      when x"7" => f := x"58";
-      when x"8" => f := x"69";
-      when x"9" => f := x"7a";
-      when x"a" => f := x"8d";
-      when x"b" => f := x"a1";
-      when x"c" => f := x"b6";
-      when x"d" => f := x"cd";
-      when x"e" => f := x"e5";
-      when x"f" => f := x"ff";
-      when others => f := x"00";
+      when x"0" => f := x"000";
+      when x"1" => f := x"0a4";
+      when x"2" => f := x"154";
+      when x"3" => f := x"210";
+      when x"4" => f := x"2d8";
+      when x"5" => f := x"3af";
+      when x"6" => f := x"494";
+      when x"7" => f := x"589";
+      when x"8" => f := x"68f";
+      when x"9" => f := x"7a7";
+      when x"a" => f := x"8d3";
+      when x"b" => f := x"a13";
+      when x"c" => f := x"b69";
+      when x"d" => f := x"cd6";
+      when x"e" => f := x"e5d";
+      when x"f" => f := x"fff";
+      when others => f := x"000";
     end case;
     return f;
-  end function exp_4_8;
+  end function exp_4_12;
 
 begin
 
@@ -95,7 +96,7 @@ begin
     g_bcm_width: if CNT_WIDTH = BCM_WIDTH generate
       bcm_e(i) <= bcm_data(i);
     else generate
-      bcm_e(i) <= exp_4_8(bcm_data(i));
+      bcm_e(i) <= exp_4_12(bcm_data(i));
     end generate;
 
     bcm_out(i) <= rst_n and or_reduce(mask and bcm_e(i));

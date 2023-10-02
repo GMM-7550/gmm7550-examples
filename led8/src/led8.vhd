@@ -13,6 +13,8 @@ use ieee.std_logic_1164.all;
 library cc;
 use cc.gatemate.all;
 
+use work.bcm_pkg.all;
+
 entity led8 is
   generic (
     pmod : string := "J9" -- J9 or J10 P-mod connector
@@ -31,17 +33,23 @@ entity led8 is
 end entity led8;
 
 architecture rtl of led8 is
+  constant ch_num    : integer := 8;
+  constant bcm_width : integer := 4;
+
   signal cc_rst_n : std_logic;
   signal rst_sync : std_logic_vector(2 downto 0);
   signal rst_n    : std_logic;
   signal sys_clk  : std_logic;
-  signal led      : std_logic;
 
+  signal data     : std_logic_vector(31 downto 0);
+
+  signal cycle    : std_logic;
+  signal bcm_data : std_logic_vector_array_t(ch_num-1 downto 0)(bcm_width-1 downto 0);
   signal led_o    : std_logic_vector(7 downto 0);
 begin
 
-  led_green <= rst_n;
-  led_red_n <= not led;
+  led_green <= '0';
+  led_red_n <= rst_n;
 
   i_cc_usr_rstn: component CC_USR_RSTN
     port map (
@@ -74,28 +82,67 @@ begin
 
   rst_n <= rst_sync(0);
 
-  i_blink: entity work.blink
+  i_seq: entity work.seq
     generic map (
-      period_g    => 25000000,
-      high_g      =>  2000000
-    )
-  port map (
-    clk   => sys_clk,
-    rst_n => rst_n,
-    o     => led
-    );
+      DATA_WIDTH => ch_num * bcm_width)
+    port map (
+      clk   => sys_clk,
+      rst_n => rst_n,
+      step  => cycle,
+      data  => data,
+      last  => open);
 
-  led_o <= (others => led);
+  g_data: for i in 0 to ch_num-1 generate
+    bcm_data(i) <= data((i+1)*bcm_width - 1 downto i*bcm_width);
+  end generate;
+
+  i_bcm: entity work.bcm
+    generic map (
+      CH_NUM    => ch_num,
+      BCM_WIDTH => bcm_width)
+    port map (
+      clk       => sys_clk,
+      rst_n     => rst_n,
+      bcm_data  => bcm_data,
+      bcm_start => cycle,
+      bcm_out   => led_o);
+
+  -- i_blink: entity work.blink
+  --   generic map (
+  --     period_g    => 25000000,
+  --     high_g      =>  2000000
+  --   )
+  -- port map (
+  --   clk   => sys_clk,
+  --   rst_n => rst_n,
+  --   o     => cycle
+  --   );
+
+  -- led_o <= x"55" when cycle = '1' else x"aa";
 
   g_j9: if pmod = "J9" generate
     J9_EN <= '1';
-    J9_IO <= led_o;
+    g_j9_i: for i in 7 downto 0 generate
+      i_iobuf: component CC_IOBUF
+        port map (
+          A  => led_o(i),
+          T  => '0',
+          Y  => open,
+          IO => J9_IO(i));
+      end generate;
 
     J10_EN <= '0';
     J10_IO <= (others => 'Z');
   else generate
     J10_EN <= '1';
-    J10_IO <= led_o;
+    g_j10_i: for i in 7 downto 0 generate
+      i_iobuf: component CC_IOBUF
+        port map (
+          A  => led_o(i),
+          T  => '0',
+          Y  => open,
+          IO => J10_IO(i));
+      end generate;
 
     J9_EN <= '0';
     J9_IO <= (others => 'Z');
