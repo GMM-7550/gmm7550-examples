@@ -32,7 +32,7 @@ LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
 define run_synthesis
   $(YOSYS) -ql $(LOGFILE_SYN) \
-  -p 'ghdl $(GHDL_FLAGS) $(VHDL_SRC) -e $(TOP)' \
+  -p 'ghdl $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) $(VHDL_SRC) -e $(TOP)' \
   -p 'synth_gatemate -top $(TOP) -nomx8' \
   -p 'write_verilog -noattr $(NETLIST)'
 endef

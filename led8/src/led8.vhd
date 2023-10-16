@@ -17,6 +17,7 @@ use work.bcm_pkg.all;
 
 entity led8 is
   generic (
+    ADDR_WIDTH : integer := 8;
     pmod : string := "J9" -- J9 or J10 P-mod connector
     );
   port (
@@ -84,7 +85,8 @@ begin
 
   i_seq: entity work.seq
     generic map (
-      DATA_WIDTH => ch_num * bcm_width)
+      DATA_WIDTH => ch_num * bcm_width,
+      ADDR_WIDTH => ADDR_WIDTH)
     port map (
       clk   => sys_clk,
       rst_n => rst_n,

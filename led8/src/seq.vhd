@@ -1,11 +1,13 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_misc.all;
 
 entity seq is
   generic (
-    DATA_WIDTH : integer := 32;
-    SINGLE_STEP: boolean := false);
+    DATA_WIDTH  : integer := 32;
+    ADDR_WIDTH  : integer := 8;
+    SINGLE_STEP : boolean := false);
   port (
     clk   : in  std_logic;
     rst_n : in  std_logic;
@@ -17,20 +19,21 @@ end entity seq;
 architecture rtl of seq is
   constant STEP_CNT_WIDTH : integer := 25;
 
-  signal ptr  : integer;
-  signal cnt  : std_logic_vector(STEP_CNT_WIDTH   downto 0);
+  signal ptr  : std_logic_vector(ADDR_WIDTH-1 downto 0);
+  signal cnt  : std_logic_vector(STEP_CNT_WIDTH downto 0);
   signal icnt : std_logic_vector(STEP_CNT_WIDTH-1 downto 0);
-  signal rdat : std_logic_vector(DATA_WIDTH-1 downto 0);
-  signal rlst : std_logic;
+
+  signal t_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+
   signal load : std_logic;
 begin
 
   load <= step and cnt(cnt'left);
 
-  g_single_step: if SINGLE_STEP generate
+  g_single_step : if SINGLE_STEP generate
     cnt <= (others => '1');
   else generate
-    p_cnt: process (clk, rst_n) is
+    p_cnt : process (clk, rst_n) is
     begin
       if rst_n = '0' then
         cnt <= (others => '1');
@@ -44,58 +47,45 @@ begin
     end process p_cnt;
   end generate;
 
-  p_ptr: process (clk, rst_n) is
+  p_ptr : process (clk, rst_n) is
   begin
     if rst_n = '0' then
-      ptr <= 0;
+      ptr <= (others => '0');
     else
       if rising_edge(clk) then
         if load = '1' then
-          if rlst = '1' then
-            ptr <= 0;
+          if last = '1' then
+            ptr <= (others => '0');
           else
-            ptr <= ptr + 1;
+            ptr <= std_logic_vector(unsigned(ptr) + 1);
           end if;
         end if;
       end if;
     end if;
   end process p_ptr;
 
-  p_dat: process (clk, rst_n) is
-  begin
-    if rst_n = '0' then
-      data <= (others => '0');
-      last <= '0';
-    elsif rising_edge(clk) then
-      if load = '1' then
-        data <= rdat;
-        last <= rlst;
-      end if;
-    end if;
-  end process p_dat;
+  last <= and_reduce(ptr);
 
-  p_rom: process (ptr) is
-  begin
-    rdat <= (others => '1');
-    icnt <= (others => '0');
-    rlst <= '0';
+  i_rom_0 : entity work.pattern_rom
+    generic map (
+      ADDR_WIDTH => ADDR_WIDTH)
+    port map (
+      clk   => clk,
+      rst_n => rst_n,
+      addr  => ptr,
+      data  => data);
 
-    case ptr is
-      when 0 =>
-        rdat <= x"00000000";
-        icnt <= std_logic_vector(to_unsigned(1000, icnt'length));
-        rlst <= '0';
+  -- icnt <= std_logic_vector(to_unsigned(600, icnt'length));
 
-      when 1 =>
-        rdat <= x"ffffffff";
-        icnt <= std_logic_vector(to_unsigned(1000, icnt'length));
-        rlst <= '1';
+  i_rom_1 : entity work.time_rom
+    generic map (
+      ADDR_WIDTH => ADDR_WIDTH)
+    port map (
+      clk   => clk,
+      rst_n => rst_n,
+      addr  => ptr,
+      data  => t_data);
 
-      when others =>
-        rdat <= x"deadbeef";
-        icnt <= (others => '0');
-        rlst <= '1';
-    end case;
-  end process p_rom;
+  icnt <= t_data(icnt'range);
 
 end architecture rtl;
