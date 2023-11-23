@@ -18,7 +18,7 @@ use work.bcm_pkg.all;
 entity led8 is
   generic (
     ADDR_WIDTH : integer := 8;
-    pmod : string := "J9" -- J9 or J10 P-mod connector
+    pmod : string := "J10" -- J9 or J10 P-mod connector
     );
   port (
     ser_clk   : in  std_logic;
