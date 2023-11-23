@@ -5,7 +5,7 @@
 #
 # Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
 
-PRFLAGS ?= +uCIO
+PRFLAGS ?= +uCIO -cCP
 
 ifeq ($(D),1)
 PRFLAGS += +d
