@@ -1,19 +1,39 @@
-local p_t = {
-   {0x0000000f, 600},
-   {0x000000f8, 500},
-   {0x00000f84, 400},
-   {0x0000f842, 400},
-   {0x000f8421, 400},
-   {0x00f84210, 400},
-   {0x0f842100, 400},
-   {0xf8421000, 400},
-   {0x84210000, 400},
-   {0x42100000, 400},
-   {0x21000000, 400},
-   {0x10000000, 400},
-   {0x00000000, 5000},
+local co = coroutine
+
+local patterns = {
+   {{
+         {0x0000000f, 600},
+         {0x000000f8, 500},
+         {0x00000f84, 400},
+         {0x0000f842, 400},
+         {0x000f8421, 400},
+         {0x00f84210, 400},
+         {0x0f842100, 400},
+         {0xf8421000, 400},
+         {0x84210000, 400},
+         {0x42100000, 400},
+         {0x21000000, 400},
+         {0x10000000, 400},
+         {0x00000000, 1000},
+         {0x00000000, 1000},
+    }, 5},
+   {{
+         {0x80000008, 600},
+         {0x48000084, 500},
+         {0x24800842, 500},
+         {0x12488421, 500},
+         {0x012ff210, 500},
+         {0x001ff100, 500},
+         {0x000ff000, 500},
+         {0x00844800, 500},
+         {0x08422480, 500},
+         {0x84211248, 500},
+         {0x42100124, 500},
+         {0x21000012, 500},
+         {0x10000001, 500},
+         {0x00000000, 1500},
+    }, 5}
 }
-local p_t_len = #p_t
 
 local addr_width = arg[1] or 8
 
@@ -21,13 +41,29 @@ local function rnd()
    return math.random(0, 15)
 end
 
+local get_pattern = co.wrap(function()
+      for p_i = 1, #patterns do
+         local p = patterns[p_i][1]
+         for i = 1, patterns[p_i][2] do
+            for j = 1, #p do
+               co.yield(p[j])
+            end
+         end
+      end
+
+      while true do
+         local p = 0
+         for j = 1, 8 do
+            p = p * 16 + rnd()
+         end
+         co.yield({p, 600})
+      end
+end)
+
+local p_t = {}
+
 for i = 1, 2^addr_width do
-   local p = 0
-   for j = 1, 8 do
-      p = p * 16 + rnd()
-   end
-   -- p_t[i] = p_t[((i-1) % p_t_len) + 1]
-   p_t[i] = {p, 600}
+   p_t[i] = get_pattern()
 end
 
 local rom_file_begin = [[
