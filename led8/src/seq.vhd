@@ -51,14 +51,12 @@ begin
   begin
     if rst_n = '0' then
       ptr <= (others => '0');
-    else
-      if rising_edge(clk) then
-        if load = '1' then
-          if last = '1' then
-            ptr <= (others => '0');
-          else
-            ptr <= std_logic_vector(unsigned(ptr) + 1);
-          end if;
+    elsif rising_edge(clk) then
+      if load = '1' then
+        if last = '1' then
+          ptr <= (others => '0');
+        else
+          ptr <= std_logic_vector(unsigned(ptr) + 1);
         end if;
       end if;
     end if;
