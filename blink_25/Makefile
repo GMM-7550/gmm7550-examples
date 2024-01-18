@@ -1,5 +1,5 @@
 # This file is a part of the GMM-7550 VHDL Examples
-# <https://github.com/ak-fau/gmm7550-examples.git>
+# <https://github.com/gmm-7550/gmm7550-examples.git>
 #
 # SPDX-License-Identifier: MIT
 #

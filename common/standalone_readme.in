@@ -1,7 +1,7 @@
 # Standalone VHDL Example for GMM-7550 Module
 
 This `@NAME@` project has been exported on **@DATE@** from the
-[`gmm7550-examples`](https://github.com/ak-fau/gmm7550-examples.git)
+[`gmm7550-examples`](https://github.com/gmm-7550/gmm7550-examples.git)
 version `@GIT_COMMIT@`.
 
 Build with
