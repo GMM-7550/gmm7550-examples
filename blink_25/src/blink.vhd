@@ -4,7 +4,7 @@
 --
 -- SPDX-License-Identifier: MIT
 --
--- Copyright (c) 2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+-- Copyright (c) 2023 Anton Kuzmin <ak@gmm7550.dev>
 -------------------------------------------------------------------------------
 
 library ieee;
