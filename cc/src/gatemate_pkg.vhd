@@ -44,7 +44,7 @@ package gatemate is
       PIN_NAME  : string  := "UNPLACED";  -- IO_<dir><bank>_<pin><pin#>
       V_IO      : string  := "UNDEFINED"; -- 1.2, 1.8 or 2.5
       DRIVE     : string  := "3";         -- 3, 6, 9, 12 mA
-      SLEW      : string  := "UDEFINED";  -- SLOW or FAST
+      SLEW      : string  := "UNDEFINED"; -- SLOW or FAST
       DELAY_OBF : integer := 0;           -- 0..15 x 50 ps
       FF_OBF    : integer := 0            -- 0: disable, 1: enable
       );
@@ -59,7 +59,7 @@ package gatemate is
       PIN_NAME  : string  := "UNPLACED";  -- IO_<dir><bank>_<pin><pin#>
       V_IO      : string  := "UNDEFINED"; -- 1.2, 1.8 or 2.5
       DRIVE     : string  := "3";         -- 3, 6, 9, 12 mA
-      SLEW      : string  := "UDEFINED";  -- SLOW or FAST
+      SLEW      : string  := "UNDEFINED"; -- SLOW or FAST
       PULLUP    : integer := 0;           -- 0: disable, 1: enable
       PULLDOWN  : integer := 0;           -- 0: disable, 1: enable
       KEEPER    : integer := 0;           -- 0: disable, 1: enable
@@ -78,7 +78,7 @@ package gatemate is
       PIN_NAME  : string  := "UNPLACED";  -- IO_<dir><bank>_<pin><pin#>
       V_IO      : string  := "UNDEFINED"; -- 1.2, 1.8 or 2.5
       DRIVE     : string  := "3";         -- 3, 6, 9, 12 mA
-      SLEW      : string  := "UDEFINED";  -- SLOW or FAST
+      SLEW      : string  := "UNDEFINED"; -- SLOW or FAST
       PULLUP    : integer := 0;           -- 0: disable, 1: enable
       PULLDOWN  : integer := 0;           -- 0: disable, 1: enable
       KEEPER    : integer := 0;           -- 0: disable, 1: enable
