@@ -5,7 +5,9 @@
 #
 # Copyright (c) 2023 Anton Kuzmin <ak@gmm7550.dev>
 
-PRFLAGS ?= +uCIO -cCP
+DEVICE ?= CCGM1A1
+
+PRFLAGS ?= --router router2
 
 ifeq ($(D),1)
 PRFLAGS += +d
@@ -16,16 +18,15 @@ GHDL_FLAGS += -P$(CC_LIB_DIR)/$(SYNTHDIR) --vendor-library=$(CC_LIB_NAME)
 
 YOSYS := yosys -m ghdl
 OFL   := openFPGALoader
-CC_TOOLCHAIN ?= $(TOPDIR)/../cc-toolchain
-ifeq ($(shell uname -s),Linux)
-WINE :=
-PR   := $(CC_TOOLCHAIN)-linux/bin/p_r/p_r
-else
-WINE := WINEDEBUG=-all wine
-PR   := $(CC_TOOLCHAIN)-win/bin/p_r/p_r.exe
-endif
+
+PR   := nextpnr-himbaechel
+PACK := gmpack
 
 NETLIST ?= $(SYNTHDIR)/$(TOP)_synth.v
+JNETLST ?= $(NETLIST:.v=.json)
+
+CFG ?= $(IMPLDIR)/$(TOP).cfg
+BIT ?= $(CFG:.cfg=.bit)
 
 LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
@@ -33,12 +34,22 @@ LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 define run_synthesis
   $(YOSYS) -ql $(LOGFILE_SYN) \
   -p 'ghdl $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) $(VHDL_SRC) -e $(TOP)' \
-  -p 'synth_gatemate -top $(TOP) -nomx8' \
+  -p 'synth_gatemate -top $(TOP) -luttree -nomx8' \
+  -p 'setparam -unset KEEPER */r:KEEPER' \
+  -p 'setparam -unset V_IO */r:V_IO=UNDEFINED' \
+  -p 'setparam -unset SLEW */r:SLEW=UNDEFINED' \
+  -p 'setparam -unset PIN_NAME */r:PIN_NAME=UNPLACED' \
+  -p 'write_json $(JNETLST)' \
   -p 'write_verilog -noattr $(NETLIST)'
 endef
 
 define run_place_and_route
-  (cd $(1) && $(WINE) $(PR) -i ../$(NETLIST) -o $(TOP) $(PRFLAGS) -ccf $(2)) > $(3)
+  $(PR) --device $(DEVICE) \
+        --json $(JNETLST) \
+        -o ccf=$(strip $(2)) \
+        -o out=$(strip $(1))/$(notdir $(CFG)) \
+        $(PRFLAGS) > $(3) 2>&1
+  (cd $(1) && $(PACK) $(notdir $(CFG)) $(notdir $(BIT))) >> $(3)
 endef
 
 define run_configure
@@ -76,13 +87,13 @@ define create_manifest
   @echo "\`\`\`"              >> $(1)
   @echo ""                    >> $(1)
 
-  @echo "# Cologne Chip Place-n-Route" >> $(1)
+  @echo "# \`nextpnr\`"       >> $(1)
   @echo ""                    >> $(1)
   @echo "\`\`\`"              >> $(1)
   @echo "PR =" $(PR)          >> $(1)
   @echo "#   " $(realpath $(shell which $(firstword $(PR)))) >> $(1)
-  @echo "~$$ p_r --help"      >> $(1)
-  @$(PR) --help | head -3     >> $(1)
+  @echo "~$$ $(PR) --version" >> $(1)
+  @$(PR) --version            >> $(1) 2>&1
   @echo "\`\`\`"              >> $(1)
   @echo ""                    >> $(1)
 endef

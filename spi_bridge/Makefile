@@ -32,15 +32,18 @@ synth: $(NETLIST)
 $(NETLIST): $(VHDL_SRC) $(CC_LIB) | $(SYNTHDIR) $(LOGDIR)
 	$(call run_synthesis)
 
-PINOUT := $(COMMONDIR)/{gmm7550-io.lua,mem-io.lua}
+PINOUT_FILES := $(COMMONDIR)/{gmm7550-io.lua,mem-io.lua}
 
 impl: synth $(DIRS)
 
 LOCAL_MAKEFILE := spi_bridge.mk
+
+$(SYNTHDIR)/dirs.mk: $(LOCAL_MAKEFILE)
+
 include $(LOCAL_MAKEFILE)
 include $(SYNTHDIR)/dirs.mk
 
-COMMON_FILES := $(COMMONDIR)/{defs.mk,ghdl.mk,flow.mk,*ccf} ${PINOUT} $(LOCAL_MAKEFILE)
+COMMON_FILES := $(COMMONDIR)/{defs.mk,ghdl.mk,flow.mk,*ccf} ${PINOUT_FILES} $(LOCAL_MAKEFILE)
 MAKEFILE_IN  := ./standalone_makefile.in
 
 include $(COMMONDIR)/export.mk

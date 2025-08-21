@@ -22,14 +22,15 @@ SRC_FILES := $(VHDL_SRC) $(VERILOG_SRC)
 $(NETLIST): $(SRC_FILES) $(LIBS) | $(SYNTHDIR) $(LOGDIR)
 	$(call run_synthesis)
 
-CFG_00  ?= $(IMPLDIR)/$(TOP)_00.cfg
+CFG ?= $(IMPLDIR)/$(TOP).cfg
+BIT := $(CFG:.cfg=.bit)
 
-impl: $(CFG_00)
+impl: $(CFG)
 
-$(CFG_00) $(CFG_00).bit &: $(NETLIST) $(CCF) | $(IMPLDIR) $(LOGDIR)
-	$(call run_place_and_route, $(IMPLDIR), ../$(CCF), $(LOGFILE_PNR))
+$(CFG) $(BIT) &: $(NETLIST) $(CCF) | $(IMPLDIR) $(LOGDIR)
+	$(call run_place_and_route, $(IMPLDIR), $(CCF), $(LOGFILE_PNR))
 
-pgm: $(CFG_00)
+pgm: $(BIT)
 	$(call run_configure, $<)
 
 libs: $(LIBS)
@@ -48,11 +49,11 @@ $(WORKDIRS) $(CFGDIR) $(EXPORTDIR):
 
 configs: $(addprefix $(CFGDIR)/, $(CFGFILE) $(BITFILE) $(MANIFEST))
 
-$(CFGDIR)/$(CFGFILE): $(CFG_00) | $(CFGDIR)
-	$(CP) $(CFG_00) $(CFGDIR)/$(CFGFILE)
+$(CFGDIR)/$(CFGFILE): $(CFG) | $(CFGDIR)
+	$(CP) $(CFG) $(CFGDIR)/$(CFGFILE)
 
-$(CFGDIR)/$(BITFILE): $(CFG_00).bit | $(CFGDIR)
-	$(CP) $(CFG_00).bit $(CFGDIR)/$(BITFILE)
+$(CFGDIR)/$(BITFILE): $(BIT) | $(CFGDIR)
+	$(CP) $(BIT) $(CFGDIR)/$(BITFILE)
 
 $(CFGDIR)/$(MANIFEST): | $(CFGDIR)
 	$(call create_manifest, $(CFGDIR)/$(MANIFEST))

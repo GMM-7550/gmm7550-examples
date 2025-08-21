@@ -1,21 +1,25 @@
+PINOUT := $(COMMONDIR)/mem-io.lua
+
 $(SYNTHDIR)/dirs.mk: Makefile | $(SYNTHDIR)
 	$(RM) $@
 	@for D in $(DIRS); do \
 	  echo "#######################################################################################" >> $@; \
 	  echo "# " $${D} >> $@; \
 	  echo "#######################################################################################" >> $@; \
-	  echo $${D}: $(IMPLDIR)_$${D}/$(TOP)_00.cfg >> $@; \
+	  echo $${D}: $(IMPLDIR)_$${D}/$(TOP).cfg >> $@; \
 	  echo "" >> $@; \
-	  echo $(IMPLDIR)_$${D}/$(TOP)_00.cfg: $(NETLIST) $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf "| " $(IMPLDIR)_$${D} >> $@; \
+	  echo $(IMPLDIR)_$${D}/$(TOP).cfg: $(NETLIST) $(IMPLDIR)_$${D}/$(TOP).ccf "| " $(IMPLDIR)_$${D} >> $@; \
 	  echo "" >> $@; \
-	  echo -e "\t$(call run_place_and_route, " $(IMPLDIR)_$${D} ", " \
-	          ../$(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf ", " $(LOGDIR)/$(TOP)_$${D}_pnr.log ")" >> $@; \
+	  echo -ne "\t$$" >> $@; \
+	  echo -ne "(call run_place_and_route," $(IMPLDIR)_$${D} "," >> $@; \
+	  echo $(IMPLDIR)_$${D}/$(TOP).ccf "," $(LOGDIR)/$(TOP)_$${D}_pnr.log ")" >> $@; \
 	  echo "" >> $@; \
-	  echo $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf: $(PINOUT) "| " $(IMPLDIR)_$${D} >> $@; \
+	  echo $(IMPLDIR)_$${D}/$(TOP).ccf: $(PINOUT_FILES) "| " $(IMPLDIR)_$${D} >> $@; \
 	  echo "" >> $@; \
-	  echo -e "\t" $(CAT) $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/hat-gmm7550.ccf " > " $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf >> $@; \
+	  echo -e "\t" $(CAT) $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/hat-gmm7550.ccf " > " $(IMPLDIR)_$${D}/$(TOP).ccf >> $@; \
 	  echo "" >> $@; \
-	  echo -e "\t" $(LUA) $(PINOUT) $${D} " >> " $(IMPLDIR)_$${D}/$(TOP)_$${D}.ccf >> $@; \
+	  echo -ne "\t" LUA_PATH=$(LUA_PATH) $(LUA) $(PINOUT) $${D} " >> " >> $@; \
+	  echo          $(IMPLDIR)_$${D}/$(TOP).ccf >> $@; \
 	  echo "" >> $@; \
 	done
 
@@ -27,10 +31,10 @@ MANIFEST := tools_manifest_$(TIMESTAMP).md
 
 configs: $(CFGFILES) $(CFGDIR)/$(MANIFEST)
 
-$(CFGDIR)/$(TOP)_%_$(GITCOMMIT)_$(TIMESTAMP).cfg: pnr_%/$(TOP)_00.cfg | $(CFGDIR)
+$(CFGDIR)/$(TOP)_%_$(GITCOMMIT)_$(TIMESTAMP).cfg: pnr_%/$(TOP).cfg | $(CFGDIR)
 	$(CP) $< $@
 
-$(CFGDIR)/$(TOP)_%_$(GITCOMMIT)_$(TIMESTAMP).bit: pnr_%/$(TOP)_00.cfg.bit | $(CFGDIR)
+$(CFGDIR)/$(TOP)_%_$(GITCOMMIT)_$(TIMESTAMP).bit: pnr_%/$(TOP).bit | $(CFGDIR)
 	$(CP) $< $@
 
 $(CFGDIR)/$(MANIFEST): | $(CFGDIR)
