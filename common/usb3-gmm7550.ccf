@@ -1,0 +1,69 @@
+## USB3 Adapter board
+
+# This file is a part of the GMM-7550 VHDL Examples
+# <https://github.com/gmm-7550/gmm7550-examples.git>
+#
+# SPDX-License-Identifier: MIT
+#
+# Copyright (c) 2023 Anton Kuzmin <ak@gmm7550.dev>
+
+# D4 CFG_FAILED (Red)
+Pin_out "led_red_n"     Loc = "IO_WA_A2";
+
+# D2 CFG_DONE (Green)
+Pin_out "led_green"     Loc = "IO_WA_B2";
+
+### UART
+
+Pin_out "uart_tx"       Loc = "IO_WA_A6"; # SPI D3, GPIO pin 10
+Pin_in  "uart_rx"       Loc = "IO_WA_B6"; # SPI D2, GPIO pin 8
+
+### P4/J4 (South IO)
+
+## User LEDs and Push Buttons
+
+Pin_in  "ubtn_a"        Loc = "IO_SB_B8";
+Pin_in  "ubtn_b"        Loc = "IO_SB_B3";
+
+Pin_out "uled[0]"       Loc = "IO_SB_A8";
+Pin_out "uled[1]"       Loc = "IO_SB_B6";
+Pin_out "uled[2]"       Loc = "IO_SB_A3";
+Pin_out "uled[3]"       Loc = "IO_SB_B2";
+
+## Power Delivery Controller (OnSemi FUSB303B)
+
+Pin_out "pd_en_n"       Loc = "IO_SB_B5";
+Pin_out "pd_scl"        Loc = "IO_SB_A6";
+Pin_inout "pd_sda"      Loc = "IO_SB_A2";
+Pin_in  "pd_alert_n"    Loc = "IO_SB_B1";
+
+## Power Delivery Switch Control
+
+Pin_out "pd_src_en"     Loc = "IO_SB_B7";
+Pin_out "pd_disc"       Loc = "IO_SB_B0";
+
+## ULPI (Microchip USB3340 PHY)
+
+Pin_in  "ulpi_clk"      Loc = "IO_SB_A7"; # CLK 1, 60 MHz
+Pin_out "ulpi_rst_n"    Loc = "IO_SB_A0";
+Pin_out "ulpi_stp"      Loc = "IO_SA_B8";
+Pin_in  "ulpi_dir"      Loc = "IO_SA_A8";
+Pin_in  "ulpi_nxt"      Loc = "IO_SA_B6";
+Pin_inout "ulpi_d[0]"   Loc = "IO_SA_A6";
+Pin_inout "ulpi_d[1]"   Loc = "IO_SA_B4";
+Pin_inout "ulpi_d[2]"   Loc = "IO_SA_A4";
+Pin_inout "ulpi_d[3]"   Loc = "IO_SA_B2";
+Pin_inout "ulpi_d[4]"   Loc = "IO_SA_B7";
+Pin_inout "ulpi_d[5]"   Loc = "IO_SA_A7";
+Pin_inout "ulpi_d[6]"   Loc = "IO_SA_B5";
+Pin_inout "ulpi_d[7]"   Loc = "IO_SA_A5";
+
+## USB 1 (STmicro STUSB03E transceiver)
+
+Pin_inout "usb1_vp"     Loc = "IO_SA_B3";
+Pin_inout "usb1_vm"     Loc = "IO_SA_A3";
+Pin_in    "usb1_rcv"    Loc = "IO_SA_A2";
+Pin_in    "usb1_busdet" Loc = "IO_SA_B1";
+Pin_out   "usb1_oe_n"   Loc = "IO_SA_A1";
+Pin_out   "usb1_con"    Loc = "IO_SA_B0";
+Pin_out   "usb1_sus"    Loc = "IO_SA_A0";
