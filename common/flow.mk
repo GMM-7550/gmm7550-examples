@@ -7,7 +7,7 @@
 
 DEVICE ?= CCGM1A1
 
-PRFLAGS ?= --router router2
+PRFLAGS ?= --router router2 --detailed-timing-report
 
 ifeq ($(D),1)
 PRFLAGS += +d
