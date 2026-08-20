@@ -10,6 +10,7 @@ EXAMPLES := blink_100_pll
 EXAMPLES += spi_bridge serial_loopback
 EXAMPLES += led8
 EXAMPLES += usb3
+EXAMPLES += ila
 
 NOLIB_TARGETS := clean distclean export manifest
 TARGETS := synth impl pgm configs
