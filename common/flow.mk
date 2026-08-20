@@ -53,7 +53,7 @@ define run_place_and_route
 endef
 
 define run_configure
-  $(OFL) $(OFLFLAGS) -c gatemate_pgm $(1)
+  $(OFL) $(OFLFLAGS) -c dirtyJtag --bitstream $(1)
 endef
 
 define create_manifest
