@@ -16,8 +16,10 @@ entity tap is
 end entity tap;
 
 architecture rtl of tap is
+  signal tck_i : std_logic;
   signal tck_l, tms_l, tdi_l, tdo_l, tdo_en : std_logic;
-  signal sck, sdi, sdo, shift, update : std_logic;
+  signal tlr, rti : std_logic;
+  signal sdi, capture, shift, update : std_logic;
   signal d_shift : std_logic_vector(3 downto 0);
   signal d_latch : std_logic_vector(3 downto 0);
 begin
@@ -29,7 +31,12 @@ begin
       SCHMITT_TRIGGER => 1)
     port map (
       I => tck,
-      Y => tck_l);
+      Y => tck_i);
+
+  i_tckg: component CC_BUFG
+    port map (
+      I => tck_i,
+      O => tck_l);
 
   i_tms: component CC_IBUF
     generic map (
@@ -67,34 +74,40 @@ begin
       tdo    => tdo_l,
       tdo_en => tdo_en,
 
+      tlr    => tlr,
+      rti    => rti,
+
       instr  => open,
       i_upd  => open,
 
-      sck    => sck,
-      sdo    => sdo,
       sdi    => sdi,
+      capture=> capture,
       shift  => shift,
       update => update);
 
   do <= d_latch;
   sdi <= d_shift(0);
 
-  p_shift_reg: process (sck)
+  shift_reg_p: process (tlr, tck_l)
   begin
-    if rising_edge(sck) then
+    if tlr = '1' then
+      d_shift <= (others => '0');
+    elsif rising_edge(tck_l) then
       if shift = '1' then
-        d_shift <= sdo & d_shift(d_shift'left downto 1);
+        d_shift <= tdi_l & d_shift(d_shift'left downto 1);
       end if;
     end if;
-  end process p_shift_reg;
+  end process shift_reg_p;
 
-  p_latch_reg: process (sck)
+  latch_reg_p: process (tlr, tck_l)
   begin
-    if falling_edge(sck) then
+    if tlr = '1' then
+      d_latch <= (others => '0');
+    elsif falling_edge(tck_l) then
       if update = '1' then
         d_latch <= d_shift;
       end if;
     end if;
-  end process p_latch_reg;
+  end process latch_reg_p;
 
 end architecture rtl;

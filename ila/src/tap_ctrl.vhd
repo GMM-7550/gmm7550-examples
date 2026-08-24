@@ -6,6 +6,7 @@ entity tap_ctrl is
   generic (
     IR_LENGHT : integer := 2;
     IDCODE    : std_logic_vector(IR_LENGHT-1 downto 0);
+    BPCODE    : std_logic_vector(IR_LENGHT-1 downto 0) := (others => '1');
     ID_LENGTH : integer := 32;
     CORE_ID   : std_logic_vector(ID_LENGTH-1 downto 0)); -- := std_logic_vector(to_unsigned(42, ID'length)));
   port (
@@ -22,9 +23,10 @@ entity tap_ctrl is
     tlr    : out std_logic;
     rti    : out std_logic;
 
-    sck    : out std_logic;
-    sdo    : out std_logic;
+    -- sck    : out std_logic;
+    -- sdo    : out std_logic;
     sdi    : in  std_logic;
+    capture: out std_logic;
     shift  : out std_logic;
     update : out std_logic);
 end entity tap_ctrl;
@@ -61,20 +63,19 @@ architecture rtl of tap_ctrl is
   signal dr_shift  : std_logic;
   signal dr_update : std_logic;
 
-  -- signal bypass    : std_logic; -- bypass register
-  -- signal id_reg    : std_logic_vector(ID_LENGTH-1 downto 0);
+  signal bp_reg    : std_logic; -- bypass register
+  signal id_reg    : std_logic_vector(ID_LENGTH-1 downto 0);
 
-  -- signal ir_sreg   : std_logic_vector(IR_LENGHT-1 downto 0);
+  signal ir_sreg   : std_logic_vector(IR_LENGHT-1 downto 0);
   signal ir_latch  : std_logic_vector(IR_LENGHT-1 downto 0);
 begin
 
   -- Propogate input signals to external data register(s)
-  sck <= tck;
-  sdo <= tdi;
+  -- sdo <= tdi;
 
-  tdo <= sdi; -- TODO
-  shift  <= dr_shift;
-  update <= dr_update;
+  capture <= dr_capt;
+  shift   <= dr_shift;
+  update  <= dr_update;
 
   -- Current instruction
   instr <= ir_latch;
@@ -102,8 +103,6 @@ begin
     dr_capt   <= '0';
     dr_shift  <= '0';
     dr_update <= '0';
-
-    tdo_en <= '0';
 
     case tap_state is
 
@@ -148,7 +147,6 @@ begin
         end if;
 
       when SHD_ST =>
-        tdo_en <= '1';
         dr_shift <= '1';
         if tms = '0' then
           tap_next <= SHD_ST;
@@ -195,7 +193,6 @@ begin
         end if;
 
       when SHI_ST =>
-        tdo_en <= '1';
         ir_shift <= '1';
         if tms = '0' then
           tap_next <= SHI_ST;
@@ -234,5 +231,79 @@ begin
 
     end case;
   end process tap_fsm_p;
+
+  ir_shift_p: process (tck)
+  begin
+    if rising_edge(tck) then
+      if ir_capt = '1' then
+        ir_sreg <= std_logic_vector(to_unsigned(1, IR_LENGHT));
+      elsif ir_shift = '1' then
+        ir_sreg <= tdi & ir_sreg(ir_sreg'left downto 1);
+      end if;
+    end if;
+  end process ir_shift_p;
+
+  ir_latch_p: process (tck)
+  begin
+    if falling_edge(tck) then
+      if tlr = '1' then
+        ir_latch <= IDCODE; -- or BYPASS
+      elsif ir_update = '1' then
+        ir_latch <= ir_sreg;
+      end if;
+    end if;
+  end process ir_latch_p;
+
+  tdo_en_p: process (tck)
+  begin
+    if falling_edge(tck) then
+      if ir_shift = '1' or dr_shift = '1' then
+        tdo_en <= '1';
+      else
+        tdo_en <= '0';
+      end if;
+    end if;
+  end process tdo_en_p;
+
+  id_reg_p: process (tck)
+  begin
+    if rising_edge(tck) then
+      if dr_capt = '1' then
+        id_reg <= CORE_ID(ID_LENGTH-1 downto 1) & '1';
+      elsif dr_shift = '1' then
+        id_reg <= tdi & id_reg(id_reg'left downto 1);
+      end if;
+    end if;
+  end process id_reg_p;
+
+  bp_reg_p: process (tck)
+  begin
+    if rising_edge(tck) then
+      if dr_capt = '1' then -- TODO: only if selected by the current instruction
+        bp_reg <= '0';
+      elsif dr_shift = '1' then
+        bp_reg <= tdi;
+      end if;
+    end if;
+  end process bp_reg_p;
+
+  tdo_p: process (tck)
+  begin
+    if falling_edge(tck) then
+      if ir_shift = '1' then
+        tdo <= ir_sreg(0);
+      elsif dr_shift = '1' then
+        if ir_latch = IDCODE then
+          tdo <= id_reg(0);
+        elsif ir_latch = BPCODE or ir_latch = std_logic_vector(to_unsigned(0, IR_LENGHT)) then
+          tdo <= bp_reg;
+        else
+          tdo <= sdi;
+        end if;
+      else
+        tdo <= '1';
+      end if;
+    end if;
+  end process tdo_p;
 
 end architecture rtl;
