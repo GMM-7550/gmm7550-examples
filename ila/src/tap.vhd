@@ -64,7 +64,9 @@ begin
   i_tap_ctrl: entity work.tap_ctrl
     generic map (
       IDCODE  => "01",
-      CORE_ID => x"c0ffee00"
+      MANUFACTURER_ID => "11101110000",
+      PART_NUMBER => x"c0ff",
+      VERSION => x"1"
       )
     port map (
       reset  => reset,

@@ -7,8 +7,10 @@ entity tap_ctrl is
     IR_LENGHT : integer := 2;
     IDCODE    : std_logic_vector(IR_LENGHT-1 downto 0);
     BPCODE    : std_logic_vector(IR_LENGHT-1 downto 0) := (others => '1');
-    ID_LENGTH : integer := 32;
-    CORE_ID   : std_logic_vector(ID_LENGTH-1 downto 0)); -- := std_logic_vector(to_unsigned(42, ID'length)));
+
+    MANUFACTURER_ID : std_logic_vector(10 downto 0) := (others => '0');
+    PART_NUMBER     : std_logic_vector(15 downto 0) := (others => '0');
+    VERSION         : std_logic_vector( 3 downto 0) := (others => '0'));
   port (
     reset  : in  std_logic;
     tck    : in  std_logic;
@@ -30,6 +32,9 @@ entity tap_ctrl is
 end entity tap_ctrl;
 
 architecture rtl of tap_ctrl is
+  constant ID_LENGTH : integer := 32;
+  constant CORE_ID : std_logic_vector(ID_LENGTH-1 downto 0) := VERSION & PART_NUMBER & MANUFACTURER_ID & '1';
+
   type tap_fsm_t is (TLR_ST, -- Test Logic Reset
                      RTI_ST, -- Run Test / Idle
                      SDR_ST, -- Select DR Scan
@@ -264,7 +269,7 @@ begin
   begin
     if rising_edge(tck) then
       if dr_capt = '1' then
-        id_reg <= CORE_ID(ID_LENGTH-1 downto 1) & '1';
+        id_reg <= CORE_ID;
       elsif dr_shift = '1' then
         id_reg <= tdi & id_reg(id_reg'left downto 1);
       end if;
