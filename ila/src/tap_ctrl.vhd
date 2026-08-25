@@ -23,8 +23,6 @@ entity tap_ctrl is
     tlr    : out std_logic;
     rti    : out std_logic;
 
-    -- sck    : out std_logic;
-    -- sdo    : out std_logic;
     sdi    : in  std_logic;
     capture: out std_logic;
     shift  : out std_logic;
@@ -69,9 +67,6 @@ architecture rtl of tap_ctrl is
   signal ir_sreg   : std_logic_vector(IR_LENGHT-1 downto 0);
   signal ir_latch  : std_logic_vector(IR_LENGHT-1 downto 0);
 begin
-
-  -- Propogate input signals to external data register(s)
-  -- sdo <= tdi;
 
   capture <= dr_capt;
   shift   <= dr_shift;

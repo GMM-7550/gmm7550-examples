@@ -18,10 +18,10 @@ entity ila is
   port (
     ser_clk   : in  std_logic;
 
-    tck       : in  std_logic;
-    tms       : in  std_logic;
-    tdi       : in  std_logic;
-    tdo       : out std_logic;
+    tck_i     : in  std_logic;
+    tms_i     : in  std_logic;
+    tdi_i     : in  std_logic;
+    tdo_o     : out std_logic;
 
     ubtn_a    : in  std_logic;
     ubtn_b    : in  std_logic;
@@ -80,10 +80,10 @@ begin
   i_tap: entity work.tap
     port map (
       reset => reset,
-      tck   => tck,
-      tms   => tms,
-      tdi   => tdi,
-      tdo   => tdo,
+      tck_i => tck_i,
+      tms_i => tms_i,
+      tdi_i => tdi_i,
+      tdo_o => tdo_o,
 
       do    => uled
       );

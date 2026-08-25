@@ -7,17 +7,17 @@ use cc.gatemate.all;
 entity tap is
   port (
     reset : in  std_logic;
-    tck   : in  std_logic;
-    tms   : in  std_logic;
-    tdi   : in  std_logic;
-    tdo   : out std_logic;
+    tck_i : in  std_logic;
+    tms_i : in  std_logic;
+    tdi_i : in  std_logic;
+    tdo_o : out std_logic;
 
     do    : out std_logic_vector(3 downto 0));
 end entity tap;
 
 architecture rtl of tap is
-  signal tck_i : std_logic;
-  signal tck_l, tms_l, tdi_l, tdo_l, tdo_en : std_logic;
+  signal tck_b : std_logic;
+  signal tck, tms, tdi, tdo, tdo_en : std_logic;
   signal tlr, rti : std_logic;
   signal sdi, capture, shift, update : std_logic;
   signal d_shift : std_logic_vector(3 downto 0);
@@ -30,36 +30,36 @@ begin
       V_IO => "2.5V",
       SCHMITT_TRIGGER => 1)
     port map (
-      I => tck,
-      Y => tck_i);
+      I => tck_i,
+      Y => tck_b);
 
   i_tckg: component CC_BUFG
     port map (
-      I => tck_i,
-      O => tck_l);
+      I => tck_b,
+      O => tck);
 
   i_tms: component CC_IBUF
     generic map (
       PIN_NAME => "IO_WA_B4",
       SCHMITT_TRIGGER => 1)
     port map (
-      I => tms,
-      Y => tms_l);
+      I => tms_i,
+      Y => tms);
 
   i_tdi: component CC_IBUF
     generic map (
       PIN_NAME => "IO_WA_A4")
     port map (
-      I => tdi,
-      Y => tdi_l);
+      I => tdi_i,
+      Y => tdi);
 
   i_tdo: component CC_TOBUF
     generic map (
       PIN_NAME => "IO_WA_B3")
     port map (
-      A => tdo_l,
+      A => tdo,
       T => not tdo_en,
-      O => tdo);
+      O => tdo_o);
 
   i_tap_ctrl: entity work.tap_ctrl
     generic map (
@@ -68,10 +68,10 @@ begin
       )
     port map (
       reset  => reset,
-      tck    => tck_l,
-      tms    => tms_l,
-      tdi    => tdi_l,
-      tdo    => tdo_l,
+      tck    => tck,
+      tms    => tms,
+      tdi    => tdi,
+      tdo    => tdo,
       tdo_en => tdo_en,
 
       tlr    => tlr,
@@ -88,22 +88,22 @@ begin
   do <= d_latch;
   sdi <= d_shift(0);
 
-  shift_reg_p: process (tlr, tck_l)
+  shift_reg_p: process (tlr, tck)
   begin
     if tlr = '1' then
       d_shift <= (others => '0');
-    elsif rising_edge(tck_l) then
+    elsif rising_edge(tck) then
       if shift = '1' then
-        d_shift <= tdi_l & d_shift(d_shift'left downto 1);
+        d_shift <= tdi & d_shift(d_shift'left downto 1);
       end if;
     end if;
   end process shift_reg_p;
 
-  latch_reg_p: process (tlr, tck_l)
+  latch_reg_p: process (tlr, tck)
   begin
     if tlr = '1' then
       d_latch <= (others => '0');
-    elsif falling_edge(tck_l) then
+    elsif falling_edge(tck) then
       if update = '1' then
         d_latch <= d_shift;
       end if;
