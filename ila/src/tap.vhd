@@ -28,12 +28,32 @@ entity tap is
 end entity tap;
 
 architecture rtl of tap is
+  constant IR_LENGHT : integer := 4;
+  constant SHIFT_LENGTH_MAX : integer := maximum(DATA_WIDTH+1, ADDR_WIDTH);
+
+  constant I_STATUS : std_logic_vector(IR_LENGHT-1 downto 0) := "1000";
+  constant I_CMD    : std_logic_vector(IR_LENGHT-1 downto 0) := "1000";
+  constant I_DATA   : std_logic_vector(IR_LENGHT-1 downto 0) := "1001";
+  constant I_T_MASK : std_logic_vector(IR_LENGHT-1 downto 0) := "1010";
+  constant I_T_DATA : std_logic_vector(IR_LENGHT-1 downto 0) := "1011";
+  constant I_ADDR   : std_logic_vector(IR_LENGHT-1 downto 0) := "1100";
+  constant I_T_POST : std_logic_vector(IR_LENGHT-1 downto 0) := "1101";
+  constant I_T_ADDR : std_logic_vector(IR_LENGHT-1 downto 0) := "1110";
+
   signal tck_b : std_logic;
   signal tck, tms, tdi, tdo, tdo_en : std_logic;
   signal tlr, rti : std_logic;
   signal sdi, capture, shift, update : std_logic;
-  signal d_shift : std_logic_vector(3 downto 0);
-  signal d_latch : std_logic_vector(3 downto 0);
+  signal d_shift : std_logic_vector(SHIFT_LENGTH_MAX-1 downto 0);
+
+  signal cmd_latch    : std_logic_vector(CSR_WIDTH-1  downto 0);
+  signal t_mask_latch : std_logic_vector(DATA_WIDTH-1 downto 0);
+  signal t_data_latch : std_logic_vector(DATA_WIDTH-1 downto 0);
+  signal t_post_latch : std_logic_vector(ADDR_WIDTH-1 downto 0);
+
+  signal instr : std_logic_vector(IR_LENGHT-1 downto 0);
+  signal i_upd : std_logic;
+  signal shift_length : integer range 1 to SHIFT_LENGTH_MAX;
 begin
 
   cmd <= (others => '0');
@@ -41,7 +61,6 @@ begin
   t_mask <= (others => '0');
   t_data <= (others => '0');
   t_post <= (others => '0');
-  -- t_addr
 
   i_tck: component CC_IBUF
     generic map (
@@ -82,7 +101,8 @@ begin
 
   i_tap_ctrl: entity work.tap_ctrl
     generic map (
-      IDCODE  => "01",
+      IR_LENGHT => IR_LENGHT,
+      IDCODE    => "0001",
       MANUFACTURER_ID => "11101110000",
       PART_NUMBER => x"c0ff",
       VERSION => x"1"
@@ -98,34 +118,100 @@ begin
       tlr    => tlr,
       rti    => rti,
 
-      instr  => open,
-      i_upd  => open,
+      instr  => instr,
+      i_upd  => i_upd,
 
       sdi    => sdi,
       capture=> capture,
       shift  => shift,
       update => update);
 
-  sdi <= d_shift(0);
+  process(tck) is
+  begin
+    if rising_edge(tck) then
+      if tlr = '1' then
+        shift_length <= 1;
+      elsif i_upd = '1' then
+        case instr is
+          when I_STATUS => shift_length <= CSR_WIDTH;
+          when I_DATA   => shift_length <= DATA_WIDTH+1;
+          when I_T_MASK => shift_length <= DATA_WIDTH;
+          when I_T_DATA => shift_length <= DATA_WIDTH;
+          when I_ADDR   => shift_length <= ADDR_WIDTH;
+          when I_T_POST => shift_length <= ADDR_WIDTH;
+          when I_T_ADDR => shift_length <= ADDR_WIDTH;
+          when others => shift_length <= 1;
+        end case;
+      end if;
+    end if;
+  end process;
+
+  sdi <= d_shift(shift_length-1);
 
   shift_reg_p: process (tlr, tck)
   begin
     if tlr = '1' then
-      d_shift <= (others => '0');
+      d_shift <= (others =>'0');
     elsif rising_edge(tck) then
-      if shift = '1' then
-        d_shift <= tdi & d_shift(d_shift'left downto 1);
+      if capture = '1' then
+        case instr is
+
+          when I_STATUS =>
+            for i in 0 to CSR_WIDTH-1 loop
+              d_shift(i) <= status(CSR_WIDTH-1 - i);
+            end loop;
+
+          when I_DATA =>
+            for i in 0 to DATA_WIDTH loop
+              d_shift(i) <= '0'; -- DPRAM read data
+            end loop;
+
+          when I_T_ADDR =>
+            for i in 0 to ADDR_WIDTH-1 loop
+              d_shift(i) <= t_addr(ADDR_WIDTH-1 - i);
+            end loop;
+
+          when others => d_shift <= (others => '0');
+        end case;
+      elsif shift = '1' then
+        d_shift <= d_shift(d_shift'left-1 downto 0) & tdi;
       end if;
     end if;
-  end process shift_reg_p;
+  end process;
 
-  latch_reg_p: process (tlr, tck)
+  latch_reg_p: process (reset, tck)
   begin
-    if tlr = '1' then
-      d_latch <= (others => '0');
+    if reset = '1' then
+      cmd_latch    <= (others => '0');
+      t_mask_latch <= (others => '0');
+      t_data_latch <= (others => '0');
+      t_post_latch <= (others => '0');
     elsif falling_edge(tck) then
       if update = '1' then
-        d_latch <= d_shift;
+        case instr is
+
+          when I_CMD =>
+            for i in 0 to CSR_WIDTH-1 loop
+              cmd_latch(i) <= d_shift(CSR_WIDTH-1 - i);
+            end loop;
+
+          when I_T_MASK =>
+            for i in 0 to DATA_WIDTH-1 loop
+              t_mask_latch(i) <= d_shift(DATA_WIDTH-1 - i);
+            end loop;
+
+          when I_T_DATA =>
+            for i in 0 to DATA_WIDTH-1 loop
+              t_data_latch(i) <= d_shift(DATA_WIDTH-1 - i);
+            end loop;
+
+          when I_T_POST =>
+            for i in 0 to ADDR_WIDTH-1 loop
+              t_post_latch(i) <= d_shift(ADDR_WIDTH-1 - i);
+            end loop;
+
+          when others => null;
+        end case;
       end if;
     end if;
   end process latch_reg_p;
