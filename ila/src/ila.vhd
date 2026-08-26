@@ -200,15 +200,9 @@ begin
     end if;
   end process;
 
-  -- u10: entity work.la
-  --   generic map (
-  --     DATA_WIDTH => DATA_WIDTH)
-  --   port map (
-  --     clk   => clk,
-  --     reset => reset,
-  --     data  => data);
-
-  i_tap: entity work.tap
+  u10: entity work.la
+    generic map (
+      DATA_WIDTH => DATA_WIDTH)
     port map (
       reset => reset,
       tck_i => tck_i,
@@ -216,7 +210,7 @@ begin
       tdi_i => tdi_i,
       tdo_o => tdo_o,
 
-      do    => open
-      );
+      clk   => clk,
+      data  => data);
 
 end architecture rtl;

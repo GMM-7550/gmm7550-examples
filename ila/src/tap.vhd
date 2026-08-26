@@ -5,14 +5,26 @@ library cc;
 use cc.gatemate.all;
 
 entity tap is
+  generic (
+    DATA_WIDTH : integer := 8;
+    ADDR_WIDTH : integer := 10;
+    CSR_WIDTH  : integer := 8);
   port (
-    reset : in  std_logic;
-    tck_i : in  std_logic;
-    tms_i : in  std_logic;
-    tdi_i : in  std_logic;
-    tdo_o : out std_logic;
+    reset  : in  std_logic;
+    tck_i  : in  std_logic;
+    tms_i  : in  std_logic;
+    tdi_i  : in  std_logic;
+    tdo_o  : out std_logic;
 
-    do    : out std_logic_vector(3 downto 0));
+    -- System clock domain
+    clk    : in  std_logic;
+    cmd    : out std_logic_vector(CSR_WIDTH-1  downto 0);
+    status : in  std_logic_vector(CSR_WIDTH-1  downto 0);
+    t_mask : out std_logic_vector(DATA_WIDTH-1 downto 0);
+    t_data : out std_logic_vector(DATA_WIDTH-1 downto 0);
+    t_post : out std_logic_vector(ADDR_WIDTH-1 downto 0);
+    t_addr : in  std_logic_vector(ADDR_WIDTH-1 downto 0)
+    );
 end entity tap;
 
 architecture rtl of tap is
@@ -23,6 +35,13 @@ architecture rtl of tap is
   signal d_shift : std_logic_vector(3 downto 0);
   signal d_latch : std_logic_vector(3 downto 0);
 begin
+
+  cmd <= (others => '0');
+  -- status
+  t_mask <= (others => '0');
+  t_data <= (others => '0');
+  t_post <= (others => '0');
+  -- t_addr
 
   i_tck: component CC_IBUF
     generic map (
@@ -87,7 +106,6 @@ begin
       shift  => shift,
       update => update);
 
-  do <= d_latch;
   sdi <= d_shift(0);
 
   shift_reg_p: process (tlr, tck)
