@@ -146,7 +146,7 @@ begin
     end if;
   end process;
 
-  sdi <= d_shift(shift_length-1);
+  sdi <= d_shift(SHIFT_LENGTH_MAX - shift_length);
 
   shift_reg_p: process (tlr, tck)
   begin
@@ -157,24 +157,19 @@ begin
         case instr is
 
           when I_STATUS =>
-            for i in 0 to CSR_WIDTH-1 loop
-              d_shift(i) <= status(CSR_WIDTH-1 - i);
-            end loop;
+            d_shift(d_shift'left downto d_shift'left - CSR_WIDTH + 1) <= status;
 
           when I_DATA =>
-            for i in 0 to DATA_WIDTH loop
-              d_shift(i) <= '0'; -- DPRAM read data
-            end loop;
+            -- DPRAM read data
+            d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 2) <= (others => '0');
 
           when I_T_ADDR =>
-            for i in 0 to ADDR_WIDTH-1 loop
-              d_shift(i) <= t_addr(ADDR_WIDTH-1 - i);
-            end loop;
+            d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH +1) <= t_addr;
 
           when others => d_shift <= (others => '0');
         end case;
       elsif shift = '1' then
-        d_shift <= d_shift(d_shift'left-1 downto 0) & tdi;
+        d_shift <= tdi & d_shift(d_shift'left downto 1);
       end if;
     end if;
   end process;
@@ -191,24 +186,16 @@ begin
         case instr is
 
           when I_CMD =>
-            for i in 0 to CSR_WIDTH-1 loop
-              cmd_latch(i) <= d_shift(CSR_WIDTH-1 - i);
-            end loop;
+            cmd_latch <= d_shift(d_shift'left downto d_shift'left - CSR_WIDTH + 1);
 
           when I_T_MASK =>
-            for i in 0 to DATA_WIDTH-1 loop
-              t_mask_latch(i) <= d_shift(DATA_WIDTH-1 - i);
-            end loop;
+            t_mask_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 1);
 
           when I_T_DATA =>
-            for i in 0 to DATA_WIDTH-1 loop
-              t_data_latch(i) <= d_shift(DATA_WIDTH-1 - i);
-            end loop;
+            t_data_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 1);
 
           when I_T_POST =>
-            for i in 0 to ADDR_WIDTH-1 loop
-              t_post_latch(i) <= d_shift(ADDR_WIDTH-1 - i);
-            end loop;
+            t_post_latch <= d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1);
 
           when others => null;
         end case;
