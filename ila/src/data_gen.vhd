@@ -36,7 +36,7 @@ begin
     if mode = '0' then
       d_next <= std_logic_vector(unsigned(d) + 1);
     else
-      d_next(7 downto 1) <= d(6 downto 0);
+      d_next(d_next'left downto 1) <= d(d_next'left-1 downto 0);
       d_next(0) <= d(7) xor d(5) xor d(4) xor d(3);
     end if;
   end process;
