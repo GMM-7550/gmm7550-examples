@@ -109,125 +109,61 @@ begin
       -- DR/IR Select
       when TLR_ST =>
         tlr <= '1';
-        if tms = '0' then
-          tap_next <= RTI_ST;
-        else
-          tap_next <= TLR_ST;
-        end if;
+        tap_next <= RTI_ST when tms = '0' else TLR_ST;
 
       when RTI_ST =>
         rti <= '1';
-        if tms = '0' then
-          tap_next <= RTI_ST;
-        else
-          tap_next <= SDR_ST;
-        end if;
+        tap_next <= RTI_ST when tms = '0' else SDR_ST;
 
       when SDR_ST =>
-        if tms = '0' then
-          tap_next <= CDR_ST;
-        else
-          tap_next <= SIR_ST;
-        end if;
+        tap_next <= CDR_ST when tms = '0' else SIR_ST;
 
       when SIR_ST =>
-        if tms = '0' then
-          tap_next <= CIR_ST;
-        else
-          tap_next <= TLR_ST;
-        end if;
+        tap_next <= CIR_ST when tms = '0' else TLR_ST;
 
       -- Data Register Path
       when CDR_ST =>
         dr_capt <= '1';
-        if tms = '0' then
-          tap_next <= SHD_ST;
-        else
-          tap_next <= E1D_ST;
-        end if;
+        tap_next <= SHD_ST when tms = '0' else E1D_ST;
 
       when SHD_ST =>
         dr_shift <= '1';
-        if tms = '0' then
-          tap_next <= SHD_ST;
-        else
-          tap_next <= E1D_ST;
-        end if;
+        tap_next <= SHD_ST when tms = '0' else E1D_ST;
 
       when E1D_ST =>
-        if tms = '0' then
-          tap_next <= PDR_ST;
-        else
-          tap_next <= UDR_ST;
-        end if;
+        tap_next <= PDR_ST when tms = '0' else UDR_ST;
 
       when PDR_ST =>
-        if tms = '0' then
-          tap_next <= PDR_ST;
-        else
-          tap_next <= E2D_ST;
-        end if;
+        tap_next <= PDR_ST when tms = '0' else E2D_ST;
 
       when E2D_ST =>
-        if tms = '0' then
-          tap_next <= SHD_ST;
-        else
-          tap_next <= UDR_ST;
-        end if;
+        tap_next <= SHD_ST when tms = '0' else UDR_ST;
 
       when UDR_ST =>
         dr_update <= '1';
-        if tms = '0' then
-          tap_next <= RTI_ST;
-        else
-          tap_next <= SDR_ST;
-        end if;
+        tap_next <= RTI_ST when tms = '0' else SDR_ST;
 
       -- Instruction Register Path
       when CIR_ST =>
         ir_capt <= '1';
-        if tms = '0' then
-          tap_next <= SHI_ST;
-        else
-          tap_next <= E1I_ST;
-        end if;
+        tap_next <= SHI_ST when tms = '0' else E1I_ST;
 
       when SHI_ST =>
         ir_shift <= '1';
-        if tms = '0' then
-          tap_next <= SHI_ST;
-        else
-          tap_next <= E1I_ST;
-        end if;
+        tap_next <= SHI_ST when tms = '0' else E1I_ST;
 
       when E1I_ST =>
-        if tms = '0' then
-          tap_next <= PIR_ST;
-        else
-          tap_next <= UIR_ST;
-        end if;
+        tap_next <= PIR_ST when tms = '0' else UIR_ST;
 
       when PIR_ST =>
-        if tms = '0' then
-          tap_next <= PIR_ST;
-        else
-          tap_next <= E2I_ST;
-        end if;
+        tap_next <= PIR_ST when tms = '0' else E2I_ST;
 
       when E2I_ST =>
-        if tms = '0' then
-          tap_next <= SHI_ST;
-        else
-          tap_next <= UIR_ST;
-        end if;
+        tap_next <= SHI_ST when tms = '0' else UIR_ST;
 
       when UIR_ST =>
         ir_update <= '1';
-        if tms = '0' then
-          tap_next <= RTI_ST;
-        else
-          tap_next <= SDR_ST;
-        end if;
+        tap_next <= RTI_ST when tms = '0' else SDR_ST;
 
     end case;
   end process tap_fsm_p;
