@@ -33,7 +33,8 @@ entity ila is
 end entity ila;
 
 architecture rtl of ila is
-  constant DATA_WIDTH : integer := 8;
+  -- Use Block RAM 40K in 2k x 20 bit configuration by default
+  constant DATA_WIDTH : integer := 19;
 
   signal clk    : std_logic;
   signal data   : std_logic_vector(DATA_WIDTH-1 downto 0);

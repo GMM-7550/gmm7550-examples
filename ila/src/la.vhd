@@ -18,7 +18,7 @@ end entity la;
 
 architecture struct of la is
 
-  constant ADDR_WIDTH : integer := 10;
+  constant ADDR_WIDTH : integer := 11; -- 2k
   constant CSR_WIDTH  : integer := 8;
 
   signal cmd : std_logic_vector(CSR_WIDTH-1 downto 0);
@@ -83,6 +83,8 @@ begin
       t_out   => trigger);
 
   u3: entity work.la_control
+    generic map (
+      L_COUNTER_BITS => ADDR_WIDTH)
     port map (
       clk => clk,
       reset => reset,
