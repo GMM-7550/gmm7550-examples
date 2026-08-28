@@ -419,6 +419,70 @@ package gatemate is
   -----------------------------------------------------------------------------
   -- Block RAM
   -----------------------------------------------------------------------------
+  component CC_BRAM_20K is
+    generic (
+      ADDR_WIDTH : integer := 16;
+      DATA_WIDTH : integer := 20
+      );
+    port (
+      A_DI   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      B_DI   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      A_BM   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      B_BM   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+
+      A_ADDR : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+      B_ADDR : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+
+      A_CLK  : in std_logic;
+      B_CLK  : in std_logic;
+
+      A_EN   : in std_logic;
+      B_EN   : in std_logic;
+      A_WE   : in std_logic;
+      B_WE   : in std_logic;
+
+      A_DO   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+      B_DO   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+
+      ECC_1B_ERR : out std_logic;
+      ECC_2B_ERR : out std_logic
+      );
+  end component CC_BRAM_20K;
+
+  component CC_BRAM_40K is
+    generic (
+      ADDR_WIDTH : integer := 16;
+      DATA_WIDTH : integer := 40
+      );
+    port (
+      A_DI   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      B_DI   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      A_BM   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+      B_BM   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+
+      A_ADDR : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+      B_ADDR : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+
+      A_CLK  : in std_logic;
+      B_CLK  : in std_logic;
+
+      A_EN   : in std_logic;
+      B_EN   : in std_logic;
+      A_WE   : in std_logic;
+      B_WE   : in std_logic;
+
+      A_CI   : in  std_logic;
+      B_CI   : in  std_logic;
+      A_CO   : out std_logic;
+      B_CO   : out std_logic;
+
+      A_DO   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+      B_DO   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+
+      ECC_1B_ERR : out std_logic;
+      ECC_2B_ERR : out std_logic
+      );
+  end component CC_BRAM_40K;
 
   -----------------------------------------------------------------------------
   -- Special Function Blocks
