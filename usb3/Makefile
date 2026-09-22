@@ -26,3 +26,10 @@ include $(COMMONDIR)/export.mk
 
 $(CCF): $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/usb3-gmm7550.ccf | $(IMPLDIR)
 	$(CAT) $^ > $@
+	@echo "" >> $@
+	@echo "Pin_out \"dbg_csn\"  Loc = \"IO_NA_B2\";" >> $@
+	@echo "Pin_out \"dbg_clk\"  Loc = \"IO_NA_A0\";" >> $@
+	@echo "Pin_out \"dbg_q[0]\" Loc = \"IO_NA_A3\";" >> $@
+	@echo "Pin_out \"dbg_q[1]\" Loc = \"IO_NA_A2\";" >> $@
+	@echo "Pin_out \"dbg_q[2]\" Loc = \"IO_NA_B3\";" >> $@
+	@echo "Pin_out \"dbg_q[3]\" Loc = \"IO_NA_B0\";" >> $@

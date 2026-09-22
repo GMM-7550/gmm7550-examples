@@ -10,6 +10,12 @@ entity la is
     tdi_i : in std_logic;
     tdo_o : out std_logic;
 
+    tck   : out std_logic;
+    tms   : out std_logic;
+    tdi   : out std_logic;
+    tdo   : out std_logic;
+    tdo_en: out std_logic;
+
     clk   : in std_logic;
     reset : in std_logic;
     data  : in std_logic_vector(DATA_WIDTH-1 downto 0)
@@ -54,6 +60,12 @@ begin
       tms_i => tms_i,
       tdi_i => tdi_i,
       tdo_o => tdo_o,
+
+      tck   => tck,
+      tms   => tms,
+      tdi   => tdi,
+      tdo   => tdo,
+      tdo_en=> tdo_en,
 
       clk    => clk,
       cmd    => cmd,

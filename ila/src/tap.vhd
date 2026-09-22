@@ -16,6 +16,12 @@ entity tap is
     tdi_i  : in  std_logic;
     tdo_o  : out std_logic;
 
+    tck   : out std_logic;
+    tms   : out std_logic;
+    tdi   : out std_logic;
+    tdo   : out std_logic;
+    tdo_en: out std_logic;
+
     -- System clock domain
     clk    : in  std_logic;
     cmd    : out std_logic_vector(CSR_WIDTH-1  downto 0);
@@ -46,7 +52,6 @@ architecture rtl of tap is
   constant I_T_ADDR : std_logic_vector(IR_LENGHT-1 downto 0) := "1110";
 
   signal tck_b : std_logic;
-  signal tck, tms, tdi, tdo, tdo_en : std_logic;
   signal tlr, rti : std_logic;
   signal sdi, capture, shift, update : std_logic;
   signal d_shift : std_logic_vector(SHIFT_LENGTH_MAX-1 downto 0);
