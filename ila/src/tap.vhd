@@ -23,8 +23,13 @@ entity tap is
     t_mask : out std_logic_vector(DATA_WIDTH-1 downto 0);
     t_data : out std_logic_vector(DATA_WIDTH-1 downto 0);
     t_post : out std_logic_vector(ADDR_WIDTH-1 downto 0);
-    t_addr : in  std_logic_vector(ADDR_WIDTH-1 downto 0)
-    );
+    t_addr : in  std_logic_vector(ADDR_WIDTH-1 downto 0);
+
+    clk_o  : out std_logic;
+    we_o   : out std_logic;
+    addr_o : out std_logic_vector(ADDR_WIDTH-1 downto 0);
+    data_i : in  std_logic_vector(DATA_WIDTH   downto 0);
+    data_o : out std_logic_vector(DATA_WIDTH   downto 0));
 end entity tap;
 
 architecture rtl of tap is
@@ -47,6 +52,8 @@ architecture rtl of tap is
   signal d_shift : std_logic_vector(SHIFT_LENGTH_MAX-1 downto 0);
 
   signal cmd_latch    : std_logic_vector(CSR_WIDTH-1  downto 0);
+  signal addr_latch   : std_logic_vector(ADDR_WIDTH-1 downto 0);
+  signal data_latch   : std_logic_vector(DATA_WIDTH   downto 0);
   signal t_mask_latch : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_data_latch : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_post_latch : std_logic_vector(ADDR_WIDTH-1 downto 0);
@@ -55,12 +62,6 @@ architecture rtl of tap is
   signal i_upd : std_logic;
   signal shift_length : integer range 1 to SHIFT_LENGTH_MAX;
 begin
-
-  cmd <= (others => '0');
-  -- status
-  t_mask <= (others => '0');
-  t_data <= (others => '0');
-  t_post <= (others => '0');
 
   i_tck: component CC_IBUF
     generic map (
@@ -160,11 +161,13 @@ begin
             d_shift(d_shift'left downto d_shift'left - CSR_WIDTH + 1) <= status;
 
           when I_DATA =>
-            -- DPRAM read data
-            d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 2) <= (others => '0');
+            d_shift(d_shift'left downto d_shift'left - DATA_WIDTH) <= data_i;
+
+          when I_ADDR =>
+            d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1) <= addr_latch;
 
           when I_T_ADDR =>
-            d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH +1) <= t_addr;
+            d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1) <= t_addr;
 
           when others => d_shift <= (others => '0');
         end case;
@@ -178,6 +181,8 @@ begin
   begin
     if reset = '1' then
       cmd_latch    <= (others => '0');
+      data_latch   <= (others => '0');
+      addr_latch   <= (others => '0');
       t_mask_latch <= (others => '0');
       t_data_latch <= (others => '0');
       t_post_latch <= (others => '0');
@@ -187,6 +192,12 @@ begin
 
           when I_CMD =>
             cmd_latch <= d_shift(d_shift'left downto d_shift'left - CSR_WIDTH + 1);
+
+          when I_DATA =>
+            data_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH);
+
+          when I_ADDR =>
+            addr_latch <= d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1);
 
           when I_T_MASK =>
             t_mask_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 1);
@@ -202,5 +213,40 @@ begin
       end if;
     end if;
   end process latch_reg_p;
+
+  -- no sync: tck clock domain
+  clk_o  <= tck and (capture or update);
+  we_o   <= update when instr = I_DATA else '0';
+  addr_o <= addr_latch;
+  data_o <= data_latch;
+
+  -- Sync output vectors to system clock domain
+  cmd_sync_i: entity work.ddff_vector
+    generic map (DATA_WIDTH => CSR_WIDTH)
+    port map (
+      clk => clk,
+      di  => cmd_latch,
+      do  => cmd);
+
+  t_mask_sync_i: entity work.ddff_vector
+    generic map (DATA_WIDTH => DATA_WIDTH)
+    port map (
+      clk => clk,
+      di  => t_mask_latch,
+      do  => t_mask);
+
+  t_data_sync_i: entity work.ddff_vector
+    generic map (DATA_WIDTH => DATA_WIDTH)
+    port map (
+      clk => clk,
+      di  => t_data_latch,
+      do  => t_data);
+
+  t_post_sync_i: entity work.ddff_vector
+    generic map (DATA_WIDTH => ADDR_WIDTH)
+    port map (
+      clk => clk,
+      di  => t_post_latch,
+      do  => t_post);
 
 end architecture rtl;

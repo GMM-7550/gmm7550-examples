@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 
 entity la is
   generic (
-    DATA_WIDTH : integer := 8);
+    DATA_WIDTH : integer := 19);
   port (
     tck_i : in std_logic;
     tms_i : in std_logic;
@@ -26,7 +26,11 @@ architecture struct of la is
   signal t_mask, t_data : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_post, t_addr : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
-  signal d_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+  signal clk_o, we_o, web : std_logic;
+  signal data_i, data_o : std_logic_vector(DATA_WIDTH downto 0);
+  signal addr_o : std_logic_vector(ADDR_WIDTH-1 downto 0);
+
+  signal d_data  : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal wr_data : std_logic_vector(DATA_WIDTH downto 0);
   signal trigger : std_logic;
   signal wr_addr : std_logic_vector(ADDR_WIDTH downto 0); -- plus 1 bit!!
@@ -51,14 +55,19 @@ begin
       tdi_i => tdi_i,
       tdo_o => tdo_o,
 
-      clk   => clk,
+      clk    => clk,
       cmd    => cmd,
       status => status,
       t_mask => t_mask,
       t_data => t_data,
       t_post => t_post,
-      t_addr => t_addr
+      t_addr => t_addr,
       -- DPRAM access
+      clk_o  => clk_o,
+      we_o   => we_o,
+      addr_o => addr_o,
+      data_o => data_o,
+      data_i => data_i
       );
 
   restart <= cmd(7);
@@ -68,7 +77,22 @@ begin
 
   wr_data <= wr_addr(wr_addr'left) & d_data;
 
+  web <= we_o and cmd(4); -- mask memroy writes from JTAG port
+
   -- u1: -- DPRAM
+  u1: entity work.dpram
+    port map (
+      clka  => clk,
+      wea   => wr_en,
+      addra => wr_addr(ADDR_WIDTH-1 downto 0),
+      dia   => wr_data,
+      doa   => open,
+
+      clkb  => clk_o,
+      web   => web,
+      addrb => addr_o,
+      dib   => data_o,
+      dob   => data_i);
 
   u2: entity work.la_trigger
     generic map (
