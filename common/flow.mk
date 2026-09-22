@@ -14,7 +14,8 @@ PRFLAGS += +d
 endif
 
 include $(COMMONDIR)/ghdl.mk
-GHDL_FLAGS += -P$(CC_LIB_DIR)/$(SYNTHDIR) --vendor-library=$(CC_LIB_NAME)
+GHDL_FLAGS += -P$(CC_LIB_DIR)/$(SYNTHDIR)
+EXTRA_GHDL_FLAGS += -frelaxed --warn-no-shared
 
 YOSYS := yosys -m ghdl
 OFL   := openFPGALoader
@@ -32,8 +33,12 @@ LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
 define run_synthesis
+  $(GHDL) import $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --warn-no-default-binding $(VHDL_SRC)
+  for f in `$(GHDL) elab-order $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --warn-no-binding $(TOP)`; do \
+    $(GHDL) analyze $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --warn-no-default-binding $$f; \
+  done
   $(YOSYS) -ql $(LOGFILE_SYN) \
-  -p 'ghdl $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) $(VHDL_SRC) -e $(TOP)' \
+  -p 'ghdl $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --vendor-library=$(CC_LIB_NAME) $(TOP)' \
   -p 'synth_gatemate -top $(TOP) -luttree -nomx8' \
   -p 'setparam -unset KEEPER */r:KEEPER' \
   -p 'setparam -unset V_IO */r:V_IO=UNDEFINED' \
