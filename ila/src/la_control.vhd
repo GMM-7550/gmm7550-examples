@@ -8,7 +8,7 @@ entity la_control is
   port (
     clk     : in  std_logic;
     reset   : in  std_logic;
-    post_st : in std_logic_vector(L_COUNTER_BITS-1 downto 0);
+    post_st : in  std_logic_vector(L_COUNTER_BITS-1 downto 0);
     arm     : in  std_logic;
     restart : in  std_logic;
     trigger : in  std_logic;
