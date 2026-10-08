@@ -42,8 +42,8 @@ architecture rtl of tap is
   constant IR_LENGHT : integer := 4;
   constant SHIFT_LENGTH_MAX : integer := maximum(DATA_WIDTH+1, ADDR_WIDTH);
 
+  constant I_CMD    : std_logic_vector(IR_LENGHT-1 downto 0) := "0111";
   constant I_STATUS : std_logic_vector(IR_LENGHT-1 downto 0) := "1000";
-  constant I_CMD    : std_logic_vector(IR_LENGHT-1 downto 0) := "1000";
   constant I_DATA   : std_logic_vector(IR_LENGHT-1 downto 0) := "1001";
   constant I_T_MASK : std_logic_vector(IR_LENGHT-1 downto 0) := "1010";
   constant I_T_DATA : std_logic_vector(IR_LENGHT-1 downto 0) := "1011";
@@ -139,6 +139,7 @@ begin
         shift_length <= 1;
       elsif i_upd = '1' then
         case instr is
+          when I_CMD    => shift_length <= CSR_WIDTH;
           when I_STATUS => shift_length <= CSR_WIDTH;
           when I_DATA   => shift_length <= DATA_WIDTH+1;
           when I_T_MASK => shift_length <= DATA_WIDTH;
