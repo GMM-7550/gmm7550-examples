@@ -42,13 +42,13 @@ architecture rtl of tap is
   constant IR_LENGHT : integer := 4;
   constant SHIFT_LENGTH_MAX : integer := maximum(DATA_WIDTH+1, ADDR_WIDTH);
 
-  constant I_CMD    : std_logic_vector(IR_LENGHT-1 downto 0) := "0111";
-  constant I_STATUS : std_logic_vector(IR_LENGHT-1 downto 0) := "1000";
-  constant I_DATA   : std_logic_vector(IR_LENGHT-1 downto 0) := "1001";
-  constant I_T_MASK : std_logic_vector(IR_LENGHT-1 downto 0) := "1010";
-  constant I_T_DATA : std_logic_vector(IR_LENGHT-1 downto 0) := "1011";
-  constant I_ADDR   : std_logic_vector(IR_LENGHT-1 downto 0) := "1100";
-  constant I_T_POST : std_logic_vector(IR_LENGHT-1 downto 0) := "1101";
+  constant I_CMD    : std_logic_vector(IR_LENGHT-1 downto 0) := "0100";
+  constant I_STATUS : std_logic_vector(IR_LENGHT-1 downto 0) := "0101";
+  constant I_DATA   : std_logic_vector(IR_LENGHT-1 downto 0) := "0110";
+  constant I_ADDR   : std_logic_vector(IR_LENGHT-1 downto 0) := "0111";
+  constant I_T_DATA : std_logic_vector(IR_LENGHT-1 downto 0) := "1000";
+  constant I_T_MASK : std_logic_vector(IR_LENGHT-1 downto 0) := "1001";
+  constant I_T_POST : std_logic_vector(IR_LENGHT-1 downto 0) := "1010";
   constant I_T_ADDR : std_logic_vector(IR_LENGHT-1 downto 0) := "1110";
 
   signal tck_b : std_logic;
