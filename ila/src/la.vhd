@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 
 entity la is
   generic (
-    DATA_WIDTH : integer := 19);
+    DATA_WIDTH : integer := 20);
   port (
     tck_i : in std_logic;
     tms_i : in std_logic;
@@ -33,11 +33,11 @@ architecture struct of la is
   signal t_post, t_addr : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
   signal clk_o, we_o, web : std_logic;
-  signal data_i, data_o : std_logic_vector(DATA_WIDTH downto 0);
+  signal data_i, data_o : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal addr_o : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
   signal d_data  : std_logic_vector(DATA_WIDTH-1 downto 0);
-  signal wr_data : std_logic_vector(DATA_WIDTH downto 0);
+  signal wr_data : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal trigger : std_logic;
   signal wr_addr : std_logic_vector(ADDR_WIDTH downto 0); -- plus 1 bit!!
   signal wr_en   : std_logic;
@@ -87,7 +87,7 @@ begin
 
   status <= done & "000" & fsm_state;
 
-  wr_data <= wr_addr(wr_addr'left) & d_data;
+  wr_data <= d_data;
 
   web <= we_o and cmd(4); -- mask memroy writes from JTAG port
 

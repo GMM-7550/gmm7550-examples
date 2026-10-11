@@ -1,13 +1,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library cc;
 use cc.gatemate.all;
 
 entity tap is
   generic (
-    DATA_WIDTH : integer := 8;
-    ADDR_WIDTH : integer := 10;
+    DATA_WIDTH : integer := 20;
+    ADDR_WIDTH : integer := 11;
     CSR_WIDTH  : integer := 8);
   port (
     reset  : in  std_logic;
@@ -34,13 +35,13 @@ entity tap is
     clk_o  : out std_logic;
     we_o   : out std_logic;
     addr_o : out std_logic_vector(ADDR_WIDTH-1 downto 0);
-    data_i : in  std_logic_vector(DATA_WIDTH   downto 0);
-    data_o : out std_logic_vector(DATA_WIDTH   downto 0));
+    data_i : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+    data_o : out std_logic_vector(DATA_WIDTH-1 downto 0));
 end entity tap;
 
 architecture rtl of tap is
   constant IR_LENGHT : integer := 4;
-  constant SHIFT_LENGTH_MAX : integer := maximum(DATA_WIDTH+1, ADDR_WIDTH);
+  constant SHIFT_LENGTH_MAX : integer := maximum(DATA_WIDTH, ADDR_WIDTH);
 
   constant I_CMD    : std_logic_vector(IR_LENGHT-1 downto 0) := "0100";
   constant I_STATUS : std_logic_vector(IR_LENGHT-1 downto 0) := "0101";
@@ -58,14 +59,13 @@ architecture rtl of tap is
 
   signal cmd_latch    : std_logic_vector(CSR_WIDTH-1  downto 0);
   signal addr_latch   : std_logic_vector(ADDR_WIDTH-1 downto 0);
-  signal data_latch   : std_logic_vector(DATA_WIDTH   downto 0);
+  signal data_latch   : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_mask_latch : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_data_latch : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_post_latch : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
   signal instr : std_logic_vector(IR_LENGHT-1 downto 0);
   signal i_upd : std_logic;
-  signal shift_length : integer range 1 to SHIFT_LENGTH_MAX;
 begin
 
   i_tck: component CC_IBUF
@@ -132,48 +132,75 @@ begin
       shift  => shift,
       update => update);
 
-  process(tck) is
+  -- process(tck) is
+  -- begin
+  --   if rising_edge(tck) then
+  --     if tlr = '1' then
+  --       shift_length <= 1;
+  --     elsif i_upd = '1' then
+  --       case instr is
+  --         when I_CMD    => shift_length <= CSR_WIDTH;
+  --         when I_STATUS => shift_length <= CSR_WIDTH;
+  --         when I_DATA   => shift_length <= DATA_WIDTH;
+  --         when I_ADDR   => shift_length <= ADDR_WIDTH;
+  --         when I_T_MASK => shift_length <= DATA_WIDTH;
+  --         when I_T_DATA => shift_length <= DATA_WIDTH;
+  --         when I_T_POST => shift_length <= ADDR_WIDTH;
+  --         when I_T_ADDR => shift_length <= ADDR_WIDTH;
+  --         when others => shift_length <= 1;
+  --       end case;
+  --     end if;
+  --   end if;
+  -- end process;
+
+  -- sdi <= d_shift(SHIFT_LENGTH_MAX - shift_length);
+
+  sdi_mux_p: process (instr, d_shift)
+  begin
+    case instr is
+      when I_CMD    => sdi <= d_shift(d_shift'left - CSR_WIDTH  + 1);
+      when I_STATUS => sdi <= d_shift(d_shift'left - CSR_WIDTH  + 1);
+      when I_DATA   => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
+      when I_ADDR   => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
+      when I_T_MASK => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
+      when I_T_DATA => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
+      when I_T_POST => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
+      when I_T_ADDR => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
+      when others   => sdi <= d_shift(d_shift'left);
+    end case;
+  end process sdi_mux_p;
+
+  shift_reg_p: process (tck)
   begin
     if rising_edge(tck) then
       if tlr = '1' then
-        shift_length <= 1;
-      elsif i_upd = '1' then
+        d_shift <= (others =>'0');
+      elsif capture = '1' then
         case instr is
-          when I_CMD    => shift_length <= CSR_WIDTH;
-          when I_STATUS => shift_length <= CSR_WIDTH;
-          when I_DATA   => shift_length <= DATA_WIDTH+1;
-          when I_T_MASK => shift_length <= DATA_WIDTH;
-          when I_T_DATA => shift_length <= DATA_WIDTH;
-          when I_ADDR   => shift_length <= ADDR_WIDTH;
-          when I_T_POST => shift_length <= ADDR_WIDTH;
-          when I_T_ADDR => shift_length <= ADDR_WIDTH;
-          when others => shift_length <= 1;
-        end case;
-      end if;
-    end if;
-  end process;
 
-  sdi <= d_shift(SHIFT_LENGTH_MAX - shift_length);
-
-  shift_reg_p: process (tlr, tck)
-  begin
-    if tlr = '1' then
-      d_shift <= (others =>'0');
-    elsif rising_edge(tck) then
-      if capture = '1' then
-        case instr is
+          when I_CMD =>
+            d_shift <= cmd_latch & std_logic_vector(to_unsigned(0, d_shift'length - CSR_WIDTH));
 
           when I_STATUS =>
-            d_shift(d_shift'left downto d_shift'left - CSR_WIDTH + 1) <= status;
+            d_shift <= status & std_logic_vector(to_unsigned(0, d_shift'length - CSR_WIDTH));
 
           when I_DATA =>
-            d_shift(d_shift'left downto d_shift'left - DATA_WIDTH) <= data_i;
+            d_shift <= data_i & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
 
           when I_ADDR =>
-            d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1) <= addr_latch;
+            d_shift <= addr_latch & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
 
           when I_T_ADDR =>
-            d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1) <= t_addr;
+            d_shift <= t_addr & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
+
+          when I_T_DATA =>
+            d_shift <= t_data_latch & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
+
+          when I_T_MASK =>
+            d_shift <= t_mask_latch & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
+
+          when I_T_POST =>
+            d_shift <= t_post_latch & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
 
           when others => d_shift <= (others => '0');
         end case;
@@ -183,9 +210,9 @@ begin
     end if;
   end process;
 
-  latch_reg_p: process (reset, tck)
+  latch_reg_p: process (tlr, tck)
   begin
-    if reset = '1' then
+    if tlr = '1' then
       cmd_latch    <= (others => '0');
       data_latch   <= (others => '0');
       addr_latch   <= (others => '0');
@@ -200,7 +227,7 @@ begin
             cmd_latch <= d_shift(d_shift'left downto d_shift'left - CSR_WIDTH + 1);
 
           when I_DATA =>
-            data_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH);
+            data_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 1);
 
           when I_ADDR =>
             addr_latch <= d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1);
