@@ -4,28 +4,29 @@ use ieee.numeric_std.all;
 
 entity la_control is
   generic (
-    L_COUNTER_BITS : integer := 10); -- record length == 1024 -> 10 bit
+    ADDR_WIDTH : integer);
   port (
     clk     : in  std_logic;
     reset   : in  std_logic;
-    post_st : in  std_logic_vector(L_COUNTER_BITS-1 downto 0);
+    post_st : in  std_logic_vector(ADDR_WIDTH-1 downto 0);
     arm     : in  std_logic;
     restart : in  std_logic;
     trigger : in  std_logic;
     state   : out std_logic_vector(3 downto 0);
     done    : out std_logic;
-    t_addr  : out std_logic_vector(L_COUNTER_BITS-1 downto 0);
-    dp_wadr : out std_logic_vector(L_COUNTER_BITS downto 0);
+    t_addr  : out std_logic_vector(ADDR_WIDTH-1 downto 0);
+    dp_wadr : out std_logic_vector(ADDR_WIDTH-1 downto 0);
     dp_we   : out std_logic
     );
 end la_control;
 
 architecture rtl of la_control is
 
+  signal t_ptr : std_logic_vector(ADDR_WIDTH-1 downto 0) := (others => '0');
+
   -- Counters are 1-bit longer for roll-over mark and overflow detection
-  signal t_ptr : std_logic_vector(L_COUNTER_BITS downto 0) := (others => '0');
-  signal d_ptr : std_logic_vector(L_COUNTER_BITS downto 0) := (others => '0');
-  signal post_cnt : std_logic_vector(L_COUNTER_BITS downto 0) := (others => '0');
+  signal d_ptr    : std_logic_vector(ADDR_WIDTH downto 0) := (others => '0');
+  signal post_cnt : std_logic_vector(ADDR_WIDTH downto 0) := (others => '0');
 
   type la_state is (LA_IDLE_ST, LA_PREFILL_ST, LA_ARMED_ST, LA_RUN_ST, LA_DONE_ST);
   signal la_current, la_next : la_state;
@@ -74,7 +75,7 @@ begin
         end if;
 
       when LA_PREFILL_ST =>
-        if d_ptr = (d_ptr'range => '1') then
+        if d_ptr(d_ptr'left) = '1' then
           la_next <= LA_ARMED_ST;
         else
           la_next <= LA_PREFILL_ST;
@@ -88,7 +89,7 @@ begin
         end if;
 
       when LA_RUN_ST =>
-        if post_cnt(L_COUNTER_BITS) = '1' then
+        if post_cnt(post_cnt'left) = '1' then
           la_next <= LA_DONE_ST;
         else
           la_next <= LA_RUN_ST;
@@ -106,7 +107,7 @@ begin
     end case;
   end process;
 
-  process (la_current)
+  process (la_current, d_ptr)
   begin
     post_cnt_load <= '0';
     post_cnt_dec <= '0';
@@ -122,7 +123,7 @@ begin
 
       when LA_ARMED_ST =>
         dp_write <= '1';
-        post_cnt_load <= '1';
+        post_cnt_load <= d_ptr(d_ptr'left);
 
       when LA_RUN_ST =>
         dp_write <= '1';
@@ -167,14 +168,14 @@ begin
       t_ptr <= (others => '0');
     elsif rising_edge(clk) then
       if trigger = '1' and la_current = LA_ARMED_ST then
-        t_ptr <= d_ptr;
+        t_ptr <= d_ptr(ADDR_WIDTH-1 downto 0);
       end if;
     end if;
   end process;
 
-  t_addr <= t_ptr(L_COUNTER_BITS-1 downto 0);
+  t_addr <= t_ptr;
 
-  dp_wadr <= d_ptr;
+  dp_wadr <= d_ptr(dp_wadr'range);
   dp_we   <= dp_write;
 
 end rtl;

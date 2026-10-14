@@ -2,10 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity la_trigger is
-
   generic (
-    DATA_WIDTH : integer := 8
-    );
+    DATA_WIDTH : integer);
   port (
     clk    :  in std_logic;
     reset  :  in std_logic;
@@ -15,7 +13,6 @@ entity la_trigger is
     d_out  : out std_logic_vector(DATA_WIDTH-1 downto 0);
     t_out  : out std_logic
     );
-
 end entity la_trigger;
 
 architecture rtl of la_trigger is

@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 
 entity la is
   generic (
-    DATA_WIDTH : integer := 20);
+    DATA_WIDTH : integer);
   port (
     tck_i : in std_logic;
     tms_i : in std_logic;
@@ -39,7 +39,7 @@ architecture struct of la is
   signal d_data  : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal wr_data : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal trigger : std_logic;
-  signal wr_addr : std_logic_vector(ADDR_WIDTH downto 0); -- plus 1 bit!!
+  signal wr_addr : std_logic_vector(ADDR_WIDTH-1 downto 0);
   signal wr_en   : std_logic;
 
   signal restart, arm : std_logic;
@@ -120,7 +120,7 @@ begin
 
   u3: entity work.la_control
     generic map (
-      L_COUNTER_BITS => ADDR_WIDTH)
+      ADDR_WIDTH => ADDR_WIDTH)
     port map (
       clk => clk,
       reset => reset,
