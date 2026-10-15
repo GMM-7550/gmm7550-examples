@@ -17,6 +17,7 @@ entity dpram is
     doa   : out std_logic_vector(DATA_WIDTH-1 downto 0);
 
     clkb  : in  std_logic;
+    reb   : in  std_logic;
     web   : in  std_logic;
     addrb : in  std_logic_vector(ADDR_WIDTH-1 downto 0);
     dib   : in  std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -61,7 +62,7 @@ begin
   B_DI <= x"00000" & dib;
   dob  <= B_DO(dob'range);
 
-  B_EN <= '1';
+  B_EN <= reb;
   B_WE <= web;
 
   bram_i: component CC_BRAM_40K

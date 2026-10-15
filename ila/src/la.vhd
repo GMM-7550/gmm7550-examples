@@ -32,7 +32,7 @@ architecture struct of la is
   signal t_mask, t_data : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_post, t_addr : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
-  signal clk_o, we_o, web : std_logic;
+  signal reb, we_o, web : std_logic;
   signal data_i, data_o : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal addr_o : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
@@ -75,7 +75,7 @@ begin
       t_post => t_post,
       t_addr => t_addr,
       -- DPRAM access
-      clk_o  => clk_o,
+      re_o   => reb,
       we_o   => we_o,
       addr_o => addr_o,
       data_o => data_o,
@@ -100,7 +100,8 @@ begin
       dia   => wr_data,
       doa   => open,
 
-      clkb  => clk_o,
+      clkb  => clk,
+      reb   => reb,
       web   => web,
       addrb => addr_o,
       dib   => data_o,

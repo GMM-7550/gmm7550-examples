@@ -13,7 +13,10 @@ entity tap_ctrl is
     VERSION         : std_logic_vector( 3 downto 0) := (others => '0'));
   port (
     reset  : in  std_logic;
-    tck    : in  std_logic;
+    clk    : in  std_logic;
+
+    tck_re : in  std_logic;
+    tck_fe : in  std_logic;
     tms    : in  std_logic;
     tdi    : in  std_logic;
     tdo    : out std_logic;
@@ -81,12 +84,14 @@ begin
   instr <= ir_latch;
   i_upd <= ir_update;
 
-  tap_fsm_reg: process (tck, reset) is
+  tap_fsm_reg: process (clk, reset) is
   begin
     if reset = '1' then
       tap_state <= TLR_ST;
-    elsif rising_edge(tck) then
-      tap_state <= tap_next;
+    elsif rising_edge(clk) then
+      if tck_re = '1' then
+        tap_state <= tap_next;
+      end if;
     end if;
   end process tap_fsm_reg;
 
@@ -168,76 +173,88 @@ begin
     end case;
   end process tap_fsm_p;
 
-  ir_shift_p: process (tck)
+  ir_shift_p: process (clk)
   begin
-    if rising_edge(tck) then
-      if ir_capt = '1' then
-        ir_sreg <= std_logic_vector(to_unsigned(1, IR_LENGHT));
-      elsif ir_shift = '1' then
-        ir_sreg <= tdi & ir_sreg(ir_sreg'left downto 1);
+    if rising_edge(clk) then
+      if tck_re = '1' then
+        if ir_capt = '1' then
+          ir_sreg <= std_logic_vector(to_unsigned(1, IR_LENGHT));
+        elsif ir_shift = '1' then
+          ir_sreg <= tdi & ir_sreg(ir_sreg'left downto 1);
+        end if;
       end if;
     end if;
   end process ir_shift_p;
 
-  ir_latch_p: process (tck)
+  ir_latch_p: process (clk)
   begin
-    if falling_edge(tck) then
-      if tlr = '1' then
-        ir_latch <= IDCODE; -- or BYPASS
-      elsif ir_update = '1' then
-        ir_latch <= ir_sreg;
+    if rising_edge(clk) then
+      if tck_fe = '1' then
+        if tlr = '1' then
+          ir_latch <= IDCODE; -- or BYPASS
+        elsif ir_update = '1' then
+          ir_latch <= ir_sreg;
+        end if;
       end if;
     end if;
   end process ir_latch_p;
 
-  tdo_en_p: process (tck)
+  tdo_en_p: process (clk)
   begin
-    if falling_edge(tck) then
-      if ir_shift = '1' or dr_shift = '1' then
-        tdo_en <= '1';
-      else
-        tdo_en <= '0';
+    if rising_edge(clk) then
+      if tck_fe = '1' then
+        if ir_shift = '1' or dr_shift = '1' then
+          tdo_en <= '1';
+        else
+          tdo_en <= '0';
+        end if;
       end if;
     end if;
   end process tdo_en_p;
 
-  id_reg_p: process (tck)
+  id_reg_p: process (clk)
   begin
-    if rising_edge(tck) then
-      if dr_capt = '1' then
-        id_reg <= CORE_ID;
-      elsif dr_shift = '1' then
-        id_reg <= tdi & id_reg(id_reg'left downto 1);
+    if rising_edge(clk) then
+      if tck_re = '1' then
+        if dr_capt = '1' then
+          id_reg <= CORE_ID;
+        elsif dr_shift = '1' then
+          id_reg <= tdi & id_reg(id_reg'left downto 1);
+        end if;
       end if;
     end if;
   end process id_reg_p;
 
-  bp_reg_p: process (tck)
+  bp_reg_p: process (clk)
   begin
-    if rising_edge(tck) then
-      if dr_capt = '1' then -- TODO: only if selected by the current instruction
-        bp_reg <= '0';
-      elsif dr_shift = '1' then
-        bp_reg <= tdi;
+    if rising_edge(clk) then
+      if tck_re = '1'  then
+        if dr_capt = '1' then -- TODO: only if selected by the current instruction
+          bp_reg <= '0';
+        elsif dr_shift = '1' then
+          bp_reg <= tdi;
+        end if;
       end if;
     end if;
   end process bp_reg_p;
 
-  tdo_p: process (tck)
+  tdo_p: process (clk)
   begin
-    if falling_edge(tck) then
-      if ir_shift = '1' then
-        tdo <= ir_sreg(0);
-      elsif dr_shift = '1' then
-        if ir_latch = IDCODE then
-          tdo <= id_reg(0);
-        elsif ir_latch = BPCODE or ir_latch = std_logic_vector(to_unsigned(0, IR_LENGHT)) then
-          tdo <= bp_reg;
+    if rising_edge(clk) then
+      if tck_fe = '1' then
+        if ir_shift = '1' then
+          tdo <= ir_sreg(0);
+        elsif dr_shift = '1' then
+          if ir_latch = IDCODE then
+            tdo <= id_reg(0);
+          elsif ir_latch = BPCODE or ir_latch = std_logic_vector(to_unsigned(0, IR_LENGHT)) then
+            tdo <= bp_reg;
+          else
+            tdo <= sdi;
+          end if;
         else
-          tdo <= sdi;
+          tdo <= '1';
         end if;
-      else
-        tdo <= '1';
       end if;
     end if;
   end process tdo_p;
