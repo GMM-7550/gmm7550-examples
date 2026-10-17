@@ -171,51 +171,10 @@ begin
     end case;
   end process sdi_mux_p;
 
-  shift_reg_p: process (clk)
+  tap_regs_p: process (clk)
   begin
     if rising_edge(clk) then
-      if tck_re = '1' then
-        if tlr = '1' then
-          d_shift <= (others =>'0');
-        elsif capture = '1' then
-          case instr is
 
-            when I_CMD =>
-              d_shift <= cmd_latch & std_logic_vector(to_unsigned(0, d_shift'length - CSR_WIDTH));
-
-            when I_STATUS =>
-              d_shift <= status & std_logic_vector(to_unsigned(0, d_shift'length - CSR_WIDTH));
-
-            when I_DATA =>
-              d_shift <= data_i & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
-
-            when I_ADDR =>
-              d_shift <= addr_latch & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
-
-            when I_T_ADDR =>
-              d_shift <= t_addr & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
-
-            when I_T_DATA =>
-              d_shift <= t_data_latch & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
-
-            when I_T_MASK =>
-              d_shift <= t_mask_latch & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
-
-            when I_T_POST =>
-              d_shift <= t_post_latch & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
-
-            when others => d_shift <= (others => '0');
-          end case;
-        elsif shift = '1' then
-          d_shift <= tdi & d_shift(d_shift'left downto 1);
-        end if;
-      end if;
-    end if;
-  end process;
-
-  latch_reg_p: process (clk)
-  begin
-    if rising_edge(clk) then
       if tlr = '1' then
         cmd_latch    <= (others => '0');
         data_latch   <= (others => '0');
@@ -223,8 +182,46 @@ begin
         t_mask_latch <= (others => '0');
         t_data_latch <= (others => '0');
         t_post_latch <= (others => '0');
-      elsif tck_fe = '1' then
-        if update = '1' then
+
+        d_shift <= (others =>'0');
+      else
+
+        if tck_re = '1' then
+          if shift = '1' then
+            d_shift <= tdi & d_shift(d_shift'left downto 1);
+          elsif capture = '1' then
+            case instr is
+
+              when I_CMD =>
+                d_shift <= cmd_latch & std_logic_vector(to_unsigned(0, d_shift'length - CSR_WIDTH));
+
+              when I_STATUS =>
+                d_shift <= status & std_logic_vector(to_unsigned(0, d_shift'length - CSR_WIDTH));
+
+              when I_DATA =>
+                d_shift <= data_i & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
+
+              when I_ADDR =>
+                d_shift <= addr_latch & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
+
+              when I_T_ADDR =>
+                d_shift <= t_addr & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
+
+              when I_T_DATA =>
+                d_shift <= t_data_latch & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
+
+              when I_T_MASK =>
+                d_shift <= t_mask_latch & std_logic_vector(to_unsigned(0, d_shift'length - DATA_WIDTH));
+
+              when I_T_POST =>
+                d_shift <= t_post_latch & std_logic_vector(to_unsigned(0, d_shift'length - ADDR_WIDTH));
+
+              when others => d_shift <= (others => '0');
+            end case;
+          end if;
+        end if; -- tck_re
+
+        if tck_fe = '1' and update = '1' then
           case instr is
 
             when I_CMD =>
@@ -248,9 +245,10 @@ begin
             when others => null;
           end case;
         end if;
-      end if;
-    end if;
-  end process latch_reg_p;
+      end if; -- tck_fe
+
+    end if; -- rising_edge(clk)
+  end process;
 
   re_o   <= '0';
   we_o   <= '0';
