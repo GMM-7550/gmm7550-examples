@@ -32,7 +32,7 @@ architecture struct of la is
   signal t_mask, t_data : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal t_post, t_addr : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
-  signal reb, we_o, web : std_logic;
+  signal reb, web : std_logic;
   signal data_i, data_o : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal addr_o : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
@@ -76,7 +76,7 @@ begin
       t_addr => t_addr,
       -- DPRAM access
       re_o   => reb,
-      we_o   => we_o,
+      we_o   => web,
       addr_o => addr_o,
       data_o => data_o,
       data_i => data_i
@@ -88,8 +88,6 @@ begin
   status <= done & "000" & fsm_state;
 
   wr_data <= d_data;
-
-  web <= we_o and cmd(4); -- mask memroy writes from JTAG port
 
   -- u1: -- DPRAM
   u1: entity work.dpram
