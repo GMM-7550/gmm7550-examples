@@ -450,10 +450,28 @@ package gatemate is
   end component CC_BRAM_20K;
 
   component CC_BRAM_40K is
-    -- generic (
-    --   ADDR_WIDTH : integer := 16;
-    --   DATA_WIDTH : integer := 40
-    --   );
+    generic (
+      -- LOC unplaced/D0X0..3Y0..7
+      -- CAS none/upper/lower
+      -- A/B_ECC_EN
+      -- INIT_xx
+      RAM_MODE   : string  := "SDP";
+      A_CLK_INV  : boolean := False;
+      A_EN_INV   : boolean := False;
+      A_WE_INV   : boolean := False;
+      A_DO_REG   : boolean := False;
+      A_RD_WIDTH : integer := 0;
+      A_WR_WIDTH : integer := 0;
+      A_WR_MODE  : string  := "NO_CHANGE";
+
+      B_CLK_INV  : boolean := False;
+      B_EN_INV   : boolean := False;
+      B_WE_INV   : boolean := False;
+      B_DO_REG   : boolean := False;
+      B_RD_WIDTH : integer := 0;
+      B_WR_WIDTH : integer := 0;
+      B_WR_MODE  : string  := "NO_CHANGE"
+      );
     port (
       A_DI   : in std_logic_vector(39 downto 0);
       B_DI   : in std_logic_vector(39 downto 0);
