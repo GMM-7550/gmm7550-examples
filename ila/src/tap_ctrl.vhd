@@ -58,6 +58,7 @@ architecture rtl of tap_ctrl is
   signal tap_state : tap_fsm_t;
   signal tap_next  : tap_fsm_t;
 
+  signal exit1     : std_logic;
   -- signal tlr       : std_logic;
   -- signal rti       : std_logic;
 
@@ -100,6 +101,7 @@ begin
 
     tlr <= '0';
     rti <= '0';
+    exit1 <= '0';
 
     ir_capt   <= '0';
     ir_shift  <= '0';
@@ -136,6 +138,7 @@ begin
         tap_next <= SHD_ST when tms = '0' else E1D_ST;
 
       when E1D_ST =>
+        exit1 <= '1';
         tap_next <= PDR_ST when tms = '0' else UDR_ST;
 
       when PDR_ST =>
@@ -158,6 +161,7 @@ begin
         tap_next <= SHI_ST when tms = '0' else E1I_ST;
 
       when E1I_ST =>
+        exit1 <= '1';
         tap_next <= PIR_ST when tms = '0' else UIR_ST;
 
       when PIR_ST =>
@@ -199,11 +203,13 @@ begin
     end if;
   end process ir_latch_p;
 
+  -- tdo_en <= ir_shift or dr_shift or exit1;
+
   tdo_en_p: process (clk)
   begin
     if rising_edge(clk) then
       if tck_fe = '1' then
-        if ir_shift = '1' or dr_shift = '1' then
+        if ir_shift = '1' or dr_shift = '1' or exit1 = '1' then
           tdo_en <= '1';
         else
           tdo_en <= '0';
