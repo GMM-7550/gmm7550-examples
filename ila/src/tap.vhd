@@ -58,6 +58,10 @@ architecture rtl of tap is
   signal sdi, capture, shift, update : std_logic;
   signal d_shift : std_logic_vector(SHIFT_LENGTH_MAX-1 downto 0);
 
+  signal read_pending : std_logic;
+  signal write_pending: std_logic;
+  signal incr_pending : std_logic;
+
   signal cmd_latch    : std_logic_vector(CSR_WIDTH-1  downto 0);
   signal addr_latch   : std_logic_vector(ADDR_WIDTH-1 downto 0);
   signal data_latch   : std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -156,19 +160,22 @@ begin
       shift  => shift,
       update => update);
 
-  sdi_mux_p: process (instr, d_shift)
+  -- sdi_mux_p: process (instr, d_shift)
+  sdi_mux_p: process (clk)
   begin
-    case instr is
-      when I_CMD    => sdi <= d_shift(d_shift'left - CSR_WIDTH  + 1);
-      when I_STATUS => sdi <= d_shift(d_shift'left - CSR_WIDTH  + 1);
-      when I_DATA   => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
-      when I_ADDR   => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
-      when I_T_MASK => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
-      when I_T_DATA => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
-      when I_T_POST => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
-      when I_T_ADDR => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
-      when others   => sdi <= d_shift(d_shift'left);
-    end case;
+    if rising_edge(clk) then
+      case instr is
+        when I_CMD    => sdi <= d_shift(d_shift'left - CSR_WIDTH  + 1);
+        when I_STATUS => sdi <= d_shift(d_shift'left - CSR_WIDTH  + 1);
+        when I_DATA   => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
+        when I_ADDR   => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
+        when I_T_MASK => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
+        when I_T_DATA => sdi <= d_shift(d_shift'left - DATA_WIDTH + 1);
+        when I_T_POST => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
+        when I_T_ADDR => sdi <= d_shift(d_shift'left - ADDR_WIDTH + 1);
+        when others   => sdi <= d_shift(d_shift'left);
+      end case;
+    end if;
   end process sdi_mux_p;
 
   tap_regs_p: process (clk)
@@ -184,6 +191,10 @@ begin
         t_post_latch <= (others => '0');
 
         d_shift <= (others =>'0');
+
+        read_pending  <= '0';
+        write_pending <= '0';
+        incr_pending  <= '0';
       else
 
         if tck_re = '1' then
@@ -229,9 +240,12 @@ begin
 
             when I_DATA =>
               data_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 1);
+              incr_pending  <= cmd_latch(4);
+              write_pending <= cmd_latch(5);
 
             when I_ADDR =>
               addr_latch <= d_shift(d_shift'left downto d_shift'left - ADDR_WIDTH + 1);
+              read_pending <= '1';
 
             when I_T_MASK =>
               t_mask_latch <= d_shift(d_shift'left downto d_shift'left - DATA_WIDTH + 1);
@@ -247,11 +261,29 @@ begin
         end if;
       end if; -- tck_fe
 
+      if read_pending = '1' then
+        re_o <= '1';
+        read_pending <= '0';
+      else
+        re_o <= '0';
+      end if;
+
+      if write_pending = '1' then
+        we_o <= '1';
+        write_pending <= '0';
+      else
+        we_o <= '0';
+      end if;
+
+      if incr_pending = '1' and write_pending = '0' then
+        addr_latch <= std_logic_vector(unsigned(addr_latch) + 1);
+        incr_pending <= '0';
+        read_pending <= '1';
+      end if;
+
     end if; -- rising_edge(clk)
   end process;
 
-  re_o   <= '0';
-  we_o   <= '0';
   addr_o <= addr_latch;
   data_o <= data_latch;
 
