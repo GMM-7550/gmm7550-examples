@@ -33,9 +33,9 @@ LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
 define run_synthesis
-  $(GHDL) import $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --warn-no-default-binding $(VHDL_SRC)
-  for f in `$(GHDL) elab-order $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --warn-no-binding $(TOP)`; do \
-    $(GHDL) analyze $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --warn-no-default-binding $$f; \
+  $(GHDL) import $(GHDL_FLAGS) --warn-no-default-binding $(VHDL_SRC)
+  for f in `$(GHDL) elab-order $(GHDL_FLAGS) --warn-no-binding $(TOP)`; do \
+    $(GHDL) analyze $(GHDL_FLAGS) --warn-no-default-binding $$f; \
   done
   $(YOSYS) -ql $(LOGFILE_SYN) \
   -p 'ghdl $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --vendor-library=$(CC_LIB_NAME) $(TOP)' \
