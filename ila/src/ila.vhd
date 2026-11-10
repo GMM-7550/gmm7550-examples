@@ -60,15 +60,11 @@ architecture rtl of ila is
   signal reset    : std_logic;
   signal sys_clk  : std_logic;
 
-  signal tck, tms, tdi, tdo, tdo_en : std_logic;
 begin
 
   dbg_csn <= '1';
-  dbg_clk <=  tck;
-  dbg_q(0) <= tms;
-  dbg_q(1) <= tdi;
-  dbg_q(2) <= tdo;
-  dbg_q(3) <= tdo_en;
+  dbg_clk <= '0';
+  dbg_q  <= (others => '0');
 
   clk <= sys_clk;
 
@@ -222,12 +218,6 @@ begin
       tms_i => tms_i,
       tdi_i => tdi_i,
       tdo_o => tdo_o,
-
-      tck => tck,
-      tms => tms,
-      tdi => tdi,
-      tdo => tdo,
-      tdo_en => tdo_en,
 
       clk   => clk,
       data  => data);

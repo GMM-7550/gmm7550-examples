@@ -17,12 +17,6 @@ entity tap is
     tdi_i  : in  std_logic;
     tdo_o  : out std_logic;
 
-    tck   : out std_logic;
-    tms   : out std_logic;
-    tdi   : out std_logic;
-    tdo   : out std_logic;
-    tdo_en: out std_logic;
-
     clk    : in  std_logic;
     cmd    : out std_logic_vector(CSR_WIDTH-1  downto 0);
     status : in  std_logic_vector(CSR_WIDTH-1  downto 0);
@@ -51,6 +45,7 @@ architecture rtl of tap is
   constant I_T_POST : std_logic_vector(IR_LENGHT-1 downto 0) := "1010";
   constant I_T_ADDR : std_logic_vector(IR_LENGHT-1 downto 0) := "1110";
 
+  signal tck, tms, tdi, tdo, tdo_en : std_logic;
   signal tck_b, tms_b, tdi_b : std_logic;
   signal tck_re, tck_fe : std_logic;
 
