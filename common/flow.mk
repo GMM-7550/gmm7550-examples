@@ -40,10 +40,6 @@ define run_synthesis
   $(YOSYS) -ql $(LOGFILE_SYN) \
   -p 'ghdl $(GHDL_FLAGS) $(EXTRA_GHDL_FLAGS) --vendor-library=$(CC_LIB_NAME) $(TOP)' \
   -p 'synth_gatemate -top $(TOP) -luttree -nomx8' \
-  -p 'setparam -unset KEEPER */r:KEEPER' \
-  -p 'setparam -unset V_IO */r:V_IO=UNDEFINED' \
-  -p 'setparam -unset SLEW */r:SLEW=UNDEFINED' \
-  -p 'setparam -unset PIN_NAME */r:PIN_NAME=UNPLACED' \
   -p 'write_json $(JNETLST)' \
   -p 'write_verilog -noattr $(NETLIST)'
 endef
