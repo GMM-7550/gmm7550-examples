@@ -48,16 +48,26 @@ entity usb3 is
     usb1_con    : out   std_logic;
     usb1_sus    : out   std_logic;
 
+    tck_i       : in    std_logic;
+    tms_i       : in    std_logic;
+    tdi_i       : in    std_logic;
+    tdo_o       : out   std_logic;
+
     led_green   : out   std_logic;
     led_red_n   : out   std_logic
     );
 end entity usb3;
 
 architecture rtl of usb3 is
+  constant ILA_DATA_WIDTH : integer := 20;
+  signal ila_data : std_logic_vector(ILA_DATA_WIDTH-1 downto 0);
+  signal ila_clk  : std_logic;
+
   signal led      : std_logic;
   signal cc_rst_n : std_logic;
   signal rst_sync : std_logic_vector(2 downto 0);
   signal rst_n    : std_logic;
+  signal reset    : std_logic;
   signal sys_clk  : std_logic;
 
   signal a, b     : std_logic;
@@ -117,6 +127,27 @@ begin
   end process p_rst;
 
   rst_n <= rst_sync(0);
+  reset <= not rst_sync(0);
+
+  i_la: entity work.la
+    generic map (
+      DATA_WIDTH => ILA_DATA_WIDTH)
+    port map (
+      reset => reset,
+
+      tck_i => tck_i,
+      tms_i => tms_i,
+      tdi_i => tdi_i,
+      tdo_o => tdo_o,
+
+      clk   => ila_clk,
+      data  => ila_data);
+
+  -- Quick test for ILA
+  ila_clk  <= sys_clk;
+  ila_data <= (0 => a, 1 => b,
+               7 downto 4 => cnt,
+               others => '0');
 
   i_blink: entity work.blink
     generic map (
