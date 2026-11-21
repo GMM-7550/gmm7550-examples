@@ -20,7 +20,8 @@ TOP := $(notdir $(PWD))
 VHDL_SRC := $(wildcard src/*.vhd)
 
 ILA_SRC := src-ila
-VHDL_SRC += $(ILA_SRC)/ddff.vhd $(ILA_SRC)/dpram.vhd
+VHDL_SRC += $(ILA_SRC)/ddff.vhd
+VHDL_SRC += $(ILA_SRC)/dpram.vhd
 VHDL_SRC += $(ILA_SRC)/edge_detect.vhd
 VHDL_SRC += $(ILA_SRC)/tap_ctrl.vhd $(ILA_SRC)/tap.vhd
 VHDL_SRC += $(ILA_SRC)/la_control.vhd $(ILA_SRC)/la_trigger.vhd $(ILA_SRC)/la.vhd
