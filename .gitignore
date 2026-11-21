@@ -3,3 +3,4 @@ synthesis/
 pnr/
 configs/
 exports/
+*.cf
