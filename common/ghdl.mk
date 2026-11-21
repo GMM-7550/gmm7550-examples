@@ -7,7 +7,7 @@
 
 GHDL          := ghdl
 VHDL_STANDARD ?= 08
-GHDL_FLAGS    := --std=$(VHDL_STANDARD) --workdir=$(SYNTHDIR) -P$(SYNTHDIR)
+GHDL_FLAGS    := --std=$(VHDL_STANDARD)
 
 # Diagnostics Control
 # GHDL_FLAGS += -fcolor-diagnostics

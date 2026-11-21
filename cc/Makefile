@@ -20,7 +20,7 @@ $(CC_LIB_NAME): $(CC_LIB)
 
 $(CC_LIB): $(VHDL_FILES) | $(SYNTHDIR)
 	for f in $(VHDL_FILES); do \
-	  $(GHDL) -a $(GHDL_FLAGS) --work=$(CC_LIB_NAME) $$f; \
+	  $(GHDL) -a $(GHDL_FLAGS) --workdir=$(SYNTHDIR) -P$(SYNTHDIR) --work=$(CC_LIB_NAME) $$f; \
 	done
 
 $(SYNTHDIR):
