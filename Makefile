@@ -12,7 +12,7 @@ EXAMPLES += led8
 EXAMPLES += usb3
 EXAMPLES += ila
 
-NOLIB_TARGETS := clean distclean export manifest
+NOLIB_TARGETS := clean clean_libs distclean export manifest
 TARGETS := synth impl pgm configs
 
 VHDL_STANDARD := 08
@@ -36,7 +36,7 @@ help:
 	$(ECHO) "Usage: make [TARGETs] [EXAMPLEs]"
 	$(ECHO)
 	$(ECHO) "Available targets:"
-	$(ECHO) "  help, all, clean, distclean,"
+	$(ECHO) "  help, all, clean, clean_libs distclean,"
 	$(ECHO) "  synth, impl, pgm,"
 	$(ECHO) "  configs, export, manifest"
 	$(ECHO)

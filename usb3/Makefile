@@ -31,6 +31,8 @@ CCF := $(IMPLDIR)/usb3.ccf
 include $(COMMONDIR)/rules.mk
 include $(COMMONDIR)/export.mk
 
+include gmm7550-usb/lib.mk
+
 $(CCF): $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/usb3-gmm7550.ccf | $(IMPLDIR)
 	$(CAT) $^ > $@
 	@echo "" >> $@

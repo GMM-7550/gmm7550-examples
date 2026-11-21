@@ -19,7 +19,7 @@ synth: $(NETLIST)
 
 SRC_FILES := $(VHDL_SRC) $(VERILOG_SRC)
 
-$(NETLIST): $(SRC_FILES) $(LIBS) | $(SYNTHDIR) $(LOGDIR)
+$(NETLIST): $(SRC_FILES) libs | $(SYNTHDIR) $(LOGDIR)
 	$(call run_synthesis)
 
 CFG ?= $(IMPLDIR)/$(TOP).cfg
@@ -33,7 +33,7 @@ $(CFG) $(BIT) &: $(NETLIST) $(CCF) | $(IMPLDIR) $(LOGDIR)
 pgm: $(BIT)
 	$(call run_configure, $<)
 
-libs: $(LIBS)
+libs: $(CC_LIB)
 
 $(CC_LIB):
 	$(MAKE) -C $(CC_LIB_DIR)
