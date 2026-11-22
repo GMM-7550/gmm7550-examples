@@ -28,10 +28,13 @@ VHDL_SRC += $(ILA_SRC)/la_control.vhd $(ILA_SRC)/la_trigger.vhd $(ILA_SRC)/la.vh
 
 CCF := $(IMPLDIR)/usb3.ccf
 
+USB_LIB := usb
+LIBS    += $(call CREATE_LIB_FILENAME,$(USB_LIB))
+
 include $(COMMONDIR)/rules.mk
 include $(COMMONDIR)/export.mk
 
-include gmm7550-usb/lib.mk
+include $(USB_LIB)/lib.mk
 
 $(CCF): $(COMMONDIR)/gmm7550.ccf $(COMMONDIR)/usb3-gmm7550.ccf | $(IMPLDIR)
 	$(CAT) $^ > $@
