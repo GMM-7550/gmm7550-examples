@@ -33,10 +33,16 @@ LOGFILE_SYN ?= $(LOGDIR)/$(TOP)_synth.log
 LOGFILE_PNR ?= $(LOGDIR)/$(TOP)_pnr.log
 
 define run_synthesis
-  $(GHDL) import $(GHDL_FLAGS) -P$(SYNTHDIR) --warn-no-default-binding $(VHDL_SRC)
-  for f in `$(GHDL) elab-order $(GHDL_FLAGS) --warn-no-binding $(TOP)`; do \
+  @$(GHDL) import $(GHDL_FLAGS) -P$(SYNTHDIR) --warn-no-default-binding $(VHDL_SRC)
+  @echo
+  @echo "### Analyze VHDL files"
+  @for f in `$(GHDL) elab-order $(GHDL_FLAGS) --warn-no-binding $(TOP)`; do \
+    echo "  " `basename $$f`; \
     $(GHDL) analyze $(GHDL_FLAGS) --workdir=$(SYNTHDIR) -P$(SYNTHDIR)  --warn-no-default-binding $$f; \
   done
+  @echo
+  @echo "### Run Yosys synthesis for" $(TOP)
+  @echo
   $(YOSYS) -ql $(LOGFILE_SYN) \
   -p 'ghdl $(GHDL_FLAGS) --workdir=$(SYNTHDIR) -P$(SYNTHDIR) $(EXTRA_GHDL_FLAGS) --vendor-library=$(CC_LIB_NAME) $(TOP)' \
   -p 'synth_gatemate -top $(TOP) -luttree -nomx8' \
@@ -45,11 +51,17 @@ define run_synthesis
 endef
 
 define run_place_and_route
+  @echo
+  @echo "### Run Place and Route"
+  @echo
   $(PR) --device $(DEVICE) \
         --json $(JNETLST) \
         -o ccf=$(strip $(2)) \
         -o out=$(strip $(1))/$(notdir $(CFG)) \
         $(PRFLAGS) > $(3) 2>&1
+  @echo
+  @echo "### Create configuration bitstream" $(BIT)
+  @echo
   (cd $(1) && $(PACK) $(notdir $(CFG)) $(notdir $(BIT))) >> $(3)
 endef
 
